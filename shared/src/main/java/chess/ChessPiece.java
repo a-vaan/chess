@@ -1,7 +1,9 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -54,18 +56,10 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-        ArrayList<ChessMove> moveList = new ArrayList<>();
+        HashSet<ChessMove> moveList = new HashSet<>();
         if (type == PieceType.BISHOP) {
             while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
                 currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
-                if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
-                    moveList.add(move);
-                }
-            }
-            currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-            while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
-                currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
                 if (board.getPiece(currentPosition) == null) {
                     ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
                     moveList.add(move);
@@ -82,6 +76,14 @@ public class ChessPiece {
             currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
             while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
                 currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
+                if (board.getPiece(currentPosition) == null) {
+                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
+                    moveList.add(move);
+                }
+            }
+            currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+            while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
+                currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
                 if (board.getPiece(currentPosition) == null) {
                     ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
                     moveList.add(move);
