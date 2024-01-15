@@ -60,7 +60,7 @@ public class ChessPiece {
         return type;
     }
 
-    public boolean movePiece(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+    private boolean movePiece(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
         if (board.getPiece(currentPosition) == null) {
             moveList.add(new ChessMove(myPosition.clone(), currentPosition.clone(), null));
             return true;
@@ -72,8 +72,9 @@ public class ChessPiece {
         }
     }
 
-    public HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition) {
+    private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
         while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
             if (movePiece(board, myPosition, currentPosition, moveList)) {
@@ -81,7 +82,7 @@ public class ChessPiece {
             }
             break;
         }
-        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        currentPosition.reset(myPosition);
         while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() + 1));
             if (movePiece(board, myPosition, currentPosition, moveList)) {
@@ -89,7 +90,7 @@ public class ChessPiece {
             }
             break;
         }
-        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        currentPosition.reset(myPosition);
         while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
             currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
             if (movePiece(board, myPosition, currentPosition, moveList)) {
@@ -97,7 +98,7 @@ public class ChessPiece {
             }
             break;
         }
-        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        currentPosition.reset(myPosition);
         while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
             currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
             if (movePiece(board, myPosition, currentPosition, moveList)) {
@@ -105,6 +106,36 @@ public class ChessPiece {
             }
             break;
         }
+        return moveList;
+    }
+
+    private boolean notGoOff (ChessPosition currentPosition) {
+        if (currentPosition.getColumn() < 1 || currentPosition.getColumn() > 8 || currentPosition.getRow() < 1 ||
+                currentPosition.getRow() > 8) {
+            return false;
+        }
+        return true;
+    }
+
+    private void kingLoop (ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        for (int i = 0; i < 3; i++) {
+            currentPosition.setPosition((currentPosition.getRow()), (currentPosition.getColumn() + 1));
+            if (notGoOff(currentPosition)) {
+                movePiece(board, myPosition, currentPosition, moveList);
+            }
+        }
+    }
+
+    private HashSet<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2);
+        kingLoop(board, myPosition, currentPosition, moveList);
+        currentPosition.reset(myPosition);
+        currentPosition.setPosition(currentPosition.getRow(), currentPosition.getColumn() - 2);
+        kingLoop(board, myPosition, currentPosition, moveList);
+        currentPosition.reset(myPosition);
+        currentPosition.setPosition(currentPosition.getRow() - 1, currentPosition.getColumn() - 2);
+        kingLoop(board, myPosition, currentPosition, moveList);
         return moveList;
     }
 
@@ -116,9 +147,11 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
         if (type == PieceType.BISHOP) {
-            return bishopMoves(board, myPosition, currentPosition);
+            return bishopMoves(board, myPosition);
+        }
+        if (type == PieceType.KING) {
+            return kingMoves(board, myPosition);
         }
         return new ArrayList<>();
     }

@@ -42,6 +42,11 @@ public class ChessPosition {
         return new ChessPosition(row, col);
     }
 
+    public void reset (ChessPosition originalPosition) {
+        this.row = originalPosition.getRow();
+        this.col = originalPosition.getColumn();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
