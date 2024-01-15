@@ -21,6 +21,19 @@ public class ChessPiece {
         this.type = type;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
     /**
      * The various different chess piece options
      */
@@ -61,7 +74,7 @@ public class ChessPiece {
             while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
                 currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
                 if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
+                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
                     moveList.add(move);
                 }
             }
@@ -69,7 +82,7 @@ public class ChessPiece {
             while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() + 1) <= 8) {
                 currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() + 1));
                 if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
+                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
                     moveList.add(move);
                 }
             }
@@ -77,7 +90,7 @@ public class ChessPiece {
             while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
                 currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
                 if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
+                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
                     moveList.add(move);
                 }
             }
@@ -85,7 +98,7 @@ public class ChessPiece {
             while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
                 currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
                 if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), type);
+                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
                     moveList.add(move);
                 }
             }
