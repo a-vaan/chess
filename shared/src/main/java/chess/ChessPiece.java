@@ -60,6 +60,54 @@ public class ChessPiece {
         return type;
     }
 
+    public boolean movePiece(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        if (board.getPiece(currentPosition) == null) {
+            moveList.add(new ChessMove(myPosition.clone(), currentPosition.clone(), null));
+            return true;
+        } else {
+            if (board.getPiece(currentPosition).pieceColor != this.pieceColor) {
+                moveList.add(new ChessMove(myPosition.clone(), currentPosition.clone(), null));
+            }
+            return false;
+        }
+    }
+
+    public HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition) {
+        HashSet<ChessMove> moveList = new HashSet<>();
+        while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
+            currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
+            if (movePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() + 1) <= 8) {
+            currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() + 1));
+            if (movePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
+            currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
+            if (movePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
+            currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
+            if (movePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        return moveList;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -69,40 +117,9 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-        HashSet<ChessMove> moveList = new HashSet<>();
         if (type == PieceType.BISHOP) {
-            while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
-                currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
-                if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
-                    moveList.add(move);
-                }
-            }
-            currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-            while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() + 1) <= 8) {
-                currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() + 1));
-                if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
-                    moveList.add(move);
-                }
-            }
-            currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-            while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
-                currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
-                if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
-                    moveList.add(move);
-                }
-            }
-            currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
-            while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
-                currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
-                if (board.getPiece(currentPosition) == null) {
-                    ChessMove move = new ChessMove(myPosition.clone(), currentPosition.clone(), null);
-                    moveList.add(move);
-                }
-            }
+            return bishopMoves(board, myPosition, currentPosition);
         }
-        return moveList;
+        return new ArrayList<>();
     }
 }
