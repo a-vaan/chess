@@ -60,7 +60,16 @@ public class ChessPiece {
         return type;
     }
 
-    private boolean movePiece(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+    /**
+     * adds a move to the moveList if the spot is available
+     *
+     * @param board: the chessboard
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
+     * @return bool which states if another move is possible
+     */
+    private boolean canMovePiece(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
         if (board.getPiece(currentPosition) == null) {
             moveList.add(new ChessMove(myPosition.clone(), currentPosition.clone(), null));
             return true;
@@ -72,12 +81,19 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates the moves the bishop can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
     private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
         while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
-            if (movePiece(board, myPosition, currentPosition, moveList)) {
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
                 continue;
             }
             break;
@@ -85,7 +101,7 @@ public class ChessPiece {
         currentPosition.reset(myPosition);
         while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() + 1));
-            if (movePiece(board, myPosition, currentPosition, moveList)) {
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
                 continue;
             }
             break;
@@ -93,7 +109,7 @@ public class ChessPiece {
         currentPosition.reset(myPosition);
         while ((currentPosition.getRow() - 1) >= 1 && (currentPosition.getColumn() - 1) >= 1) {
             currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn() - 1));
-            if (movePiece(board, myPosition, currentPosition, moveList)) {
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
                 continue;
             }
             break;
@@ -101,7 +117,7 @@ public class ChessPiece {
         currentPosition.reset(myPosition);
         while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() - 1) >= 1) {
             currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() - 1));
-            if (movePiece(board, myPosition, currentPosition, moveList)) {
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
                 continue;
             }
             break;
@@ -109,33 +125,121 @@ public class ChessPiece {
         return moveList;
     }
 
+    /**
+     * Calculates if the current space is on the chessboard
+     *
+     * @param currentPosition: the current position of the piece
+     * @return bool of if the piece is on the board or not
+     */
     private boolean notGoOff (ChessPosition currentPosition) {
-        if (currentPosition.getColumn() < 1 || currentPosition.getColumn() > 8 || currentPosition.getRow() < 1 ||
-                currentPosition.getRow() > 8) {
-            return false;
-        }
-        return true;
+        return currentPosition.getColumn() >= 1 && currentPosition.getColumn() <= 8 && currentPosition.getRow() >= 1 &&
+                currentPosition.getRow() <= 8;
     }
 
+    /**
+     * a loop used to check each space around the king to see what spots can be moved to
+     *
+     * @param board: the chessboard
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
+     */
     private void kingLoop (ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
         for (int i = 0; i < 3; i++) {
             currentPosition.setPosition((currentPosition.getRow()), (currentPosition.getColumn() + 1));
             if (notGoOff(currentPosition)) {
-                movePiece(board, myPosition, currentPosition, moveList);
+                canMovePiece(board, myPosition, currentPosition, moveList);
             }
         }
+        currentPosition.reset(myPosition);
     }
 
+    /**
+     * Calculates the moves the king can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
     private HashSet<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        // initialize the HashSet and currentPosition
         HashSet<ChessMove> moveList = new HashSet<>();
         ChessPosition currentPosition = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 2);
+        // check the spots above the king
         kingLoop(board, myPosition, currentPosition, moveList);
-        currentPosition.reset(myPosition);
+        // check the spots to the left and right of the king
         currentPosition.setPosition(currentPosition.getRow(), currentPosition.getColumn() - 2);
         kingLoop(board, myPosition, currentPosition, moveList);
-        currentPosition.reset(myPosition);
+        // check the spots below the king
         currentPosition.setPosition(currentPosition.getRow() - 1, currentPosition.getColumn() - 2);
         kingLoop(board, myPosition, currentPosition, moveList);
+        return moveList;
+    }
+
+    /**
+     * Checks the spots to the left and right of the currentPosition
+     * and adds them to the moveList if the knight is able to move there
+     *
+     * @param board: the chessboard
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
+     */
+    private void knightLoopSide(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        currentPosition.setPosition((currentPosition.getRow()), (currentPosition.getColumn() - 1));
+        if (notGoOff(currentPosition)) {
+            canMovePiece(board, myPosition, currentPosition, moveList);
+        }
+        currentPosition.setPosition((currentPosition.getRow()), (currentPosition.getColumn() + 2));
+        if (notGoOff(currentPosition)) {
+            canMovePiece(board, myPosition, currentPosition, moveList);
+        }
+        currentPosition.reset(myPosition);
+    }
+
+    /**
+     * Checks the spots above and below the currentPosition
+     * and adds them to the moveList if the knight is able to move there
+     *
+     * @param board: the chessboard
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
+     */
+    private void knightLoopUp(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        currentPosition.setPosition((currentPosition.getRow() - 1), (currentPosition.getColumn()));
+        if (notGoOff(currentPosition)) {
+            canMovePiece(board, myPosition, currentPosition, moveList);
+        }
+        currentPosition.setPosition((currentPosition.getRow() + 2), (currentPosition.getColumn()));
+        if (notGoOff(currentPosition)) {
+            canMovePiece(board, myPosition, currentPosition, moveList);
+        }
+        currentPosition.reset(myPosition);
+    }
+
+    /**
+     * Calculates the moves the knight can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
+    private HashSet<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        // initialize the HashSet and currentPosition
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow() + 2, myPosition.getColumn());
+        // check the spaces above the knight
+        knightLoopSide(board, myPosition, currentPosition, moveList);
+        // check the spaces below the knight
+        currentPosition.setPosition(currentPosition.getRow() - 2, currentPosition.getColumn());
+        knightLoopSide(board, myPosition, currentPosition, moveList);
+        // check the spaces to the left of the knight
+        currentPosition.setPosition(currentPosition.getRow(), currentPosition.getColumn() - 2);
+        knightLoopUp(board, myPosition, currentPosition, moveList);
+        // check the spaces to the right of the knight
+        currentPosition.setPosition(currentPosition.getRow(), currentPosition.getColumn() + 2);
+        knightLoopUp(board, myPosition, currentPosition, moveList);
         return moveList;
     }
 
@@ -152,6 +256,9 @@ public class ChessPiece {
         }
         if (type == PieceType.KING) {
             return kingMoves(board, myPosition);
+        }
+        if (type == PieceType.KNIGHT) {
+            return knightMoves(board, myPosition);
         }
         return new ArrayList<>();
     }
