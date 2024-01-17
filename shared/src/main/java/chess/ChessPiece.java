@@ -418,6 +418,51 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates the moves the rook can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
+    private HashSet<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        // initialize the HashSet and currentPosition
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        while ((currentPosition.getRow() + 1) <= 8) {
+            currentPosition.setPosition((currentPosition.getRow() + 1), currentPosition.getColumn());
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition.reset(myPosition);
+        while ((currentPosition.getRow() - 1) >= 1) {
+            currentPosition.setPosition((currentPosition.getRow() - 1), currentPosition.getColumn());
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition.reset(myPosition);
+        while ((currentPosition.getColumn() + 1) <= 8) {
+            currentPosition.setPosition(currentPosition.getRow(), (currentPosition.getColumn() + 1));
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        currentPosition.reset(myPosition);
+        while ((currentPosition.getColumn() - 1) >= 1) {
+            currentPosition.setPosition(currentPosition.getRow(), (currentPosition.getColumn() - 1));
+            if (canMovePiece(board, myPosition, currentPosition, moveList)) {
+                continue;
+            }
+            break;
+        }
+        return moveList;
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -436,6 +481,9 @@ public class ChessPiece {
         }
         if (type == PieceType.PAWN) {
             return pawnMoves(board, myPosition);
+        }
+        if (type == PieceType.ROOK) {
+            return rookMoves(board, myPosition);
         }
         return new ArrayList<>();
     }
