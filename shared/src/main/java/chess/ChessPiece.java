@@ -82,15 +82,15 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates the moves the bishop can make
+     * checks all moves that can be made vertically and horizontally from the current piece
      *
      * @param board: the chessboard
-     * @param myPosition: the current position of the bishop
-     * @return HashSet of all the different ChessMoves available to the bishop
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
      */
-    private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
-        HashSet<ChessMove> moveList = new HashSet<>();
-        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+    private void diagonal(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        currentPosition.reset(myPosition);
         while ((currentPosition.getRow() + 1) <= 8 && (currentPosition.getColumn() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() + 1), (currentPosition.getColumn() + 1));
             if (canMovePiece(board, myPosition, currentPosition, moveList)) {
@@ -122,6 +122,19 @@ public class ChessPiece {
             }
             break;
         }
+    }
+
+    /**
+     * Calculates the moves the bishop can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
+    private HashSet<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        diagonal(board, myPosition, currentPosition, moveList);
         return moveList;
     }
 
@@ -418,16 +431,15 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates the moves the rook can make
+     * checks all moves that can be made vertically and horizontally from the current piece
      *
      * @param board: the chessboard
-     * @param myPosition: the current position of the bishop
-     * @return HashSet of all the different ChessMoves available to the bishop
+     * @param myPosition: the original position of the piece
+     * @param currentPosition: the current position of the piece
+     * @param moveList: HashSet of all the moves the current piece can make
      */
-    private HashSet<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
-        // initialize the HashSet and currentPosition
-        HashSet<ChessMove> moveList = new HashSet<>();
-        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+    private void horizontalAndVertical(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moveList) {
+        currentPosition.reset(myPosition);
         while ((currentPosition.getRow() + 1) <= 8) {
             currentPosition.setPosition((currentPosition.getRow() + 1), currentPosition.getColumn());
             if (canMovePiece(board, myPosition, currentPosition, moveList)) {
@@ -459,6 +471,36 @@ public class ChessPiece {
             }
             break;
         }
+    }
+
+    /**
+     * Calculates the moves the rook can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
+    private HashSet<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        // initialize the HashSet and currentPosition
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        horizontalAndVertical(board, myPosition, currentPosition, moveList);
+        return moveList;
+    }
+
+    /**
+     * Calculates the moves the queen can make
+     *
+     * @param board: the chessboard
+     * @param myPosition: the current position of the bishop
+     * @return HashSet of all the different ChessMoves available to the bishop
+     */
+    private HashSet<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+        // initialize the HashSet and currentPosition
+        HashSet<ChessMove> moveList = new HashSet<>();
+        ChessPosition currentPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        diagonal(board, myPosition, currentPosition, moveList);
+        horizontalAndVertical(board, myPosition, currentPosition, moveList);
         return moveList;
     }
 
@@ -484,6 +526,9 @@ public class ChessPiece {
         }
         if (type == PieceType.ROOK) {
             return rookMoves(board, myPosition);
+        }
+        if (type == PieceType.QUEEN) {
+            return queenMoves(board, myPosition);
         }
         return new ArrayList<>();
     }
