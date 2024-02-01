@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import chess.pieces.*;
@@ -60,11 +59,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        if(pieces.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING) {
-            KingMovesCalculator king = new KingMovesCalculator();
-            return king.pieceMoves(pieces, startPosition);
-        }
-        return new ArrayList<>();
+        return pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
     }
 
     /**

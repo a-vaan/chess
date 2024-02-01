@@ -22,7 +22,7 @@ public class ChessBoard {
      * @param position where to delete the piece from
      */
     public void deletePiece(ChessPosition position) {
-        squares[position.getRow()][position.getColumn()] = null;
+        squares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
 
     /**
