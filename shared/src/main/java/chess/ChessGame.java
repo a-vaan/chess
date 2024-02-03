@@ -95,6 +95,17 @@ public class ChessGame {
         if(validMoveSet.contains(move)) {
             pieces.addPiece(move.getEndPosition(), pieces.getPiece(move.getStartPosition()));
             pieces.deletePiece(move.getStartPosition());
+            if (pieces.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    currentTeamTurn == TeamColor.WHITE &&
+                    move.getEndPosition().getRow() == 8 &&
+                    move.getPromotionPiece() != null) {
+                pieces.addPiece(move.getEndPosition(), new ChessPiece(currentTeamTurn, move.getPromotionPiece()));
+            } else if (pieces.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    currentTeamTurn == TeamColor.BLACK &&
+                    move.getEndPosition().getRow() == 1 &&
+                    move.getPromotionPiece() != null) {
+                pieces.addPiece(move.getEndPosition(), new ChessPiece(currentTeamTurn, move.getPromotionPiece()));
+            }
             if (isInCheck(currentTeamTurn)) {
                 if (pieces.getPiece(move.getEndPosition()).getPieceType() != ChessPiece.PieceType.KING) {
                     pieces.addPiece(move.getStartPosition(), pieces.getPiece(move.getEndPosition()));
