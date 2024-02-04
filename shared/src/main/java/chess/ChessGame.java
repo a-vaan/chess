@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import chess.pieces.*;
 
@@ -61,23 +62,28 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (pieces.getPiece(startPosition).getPieceType() == ChessPiece.PieceType.KING &&
                 pieces.getPiece(startPosition).getTeamColor() == currentTeamTurn) {
-            Collection<ChessMove> kingMoves = pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
-            for (ChessMove move: kingMoves) {
-                kingMoveChecker(kingMoves, move);
+            Collection<ChessMove> allKingMoves = pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
+            Collection<ChessMove> legalKingMoves = new HashSet<>();
+            for (ChessMove move: allKingMoves) {
+                kingMoveChecker(legalKingMoves, move);
             }
-            return kingMoves;
+            return legalKingMoves;
         }
         return pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
     }
 
-    private void kingMoveChecker(Collection<ChessMove> kingMoves, ChessMove move) {
+    private void kingMoveChecker(Collection<ChessMove> legalKingMoves, ChessMove move) {
+        boolean doesNotMakeCheck = true;
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 if (checkChecker(pieces.getPiece(move.getStartPosition()).getTeamColor(),
                         move.getEndPosition(), row, col)) {
-                    kingMoves.remove(move);
+                    doesNotMakeCheck = false;
                 }
             }
+        }
+        if (doesNotMakeCheck) {
+            legalKingMoves.add(move);
         }
     }
 
@@ -181,7 +187,40 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(teamColor);
+
+        if (isInCheck(teamColor)) {
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    if (notCheckmateChecker(teamColor, kingPosition, row, col)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean notCheckmateChecker (TeamColor teamColor, ChessPosition kingPosition, int row, int col) {
+        ChessPiece currentPiece = pieces.getPiece(new ChessPosition(row, col));
+        if (currentPiece == null) {
+            return false;
+        }
+        if (currentPiece.getTeamColor() == teamColor) {
+            Collection<ChessMove> validMoveSet = validMoves(new ChessPosition(row, col));
+            for (ChessMove move: validMoveSet) {
+                pieces.addPiece(move.getEndPosition(), pieces.getPiece(move.getStartPosition()));
+                pieces.deletePiece(move.getStartPosition());
+                if (!checkChecker(teamColor, kingPosition, row, col)) {
+                    pieces.addPiece(move.getStartPosition(), pieces.getPiece(move.getEndPosition()));
+                    pieces.deletePiece(move.getEndPosition());
+                    return true;
+                }
+                pieces.addPiece(move.getStartPosition(), pieces.getPiece(move.getEndPosition()));
+                pieces.deletePiece(move.getEndPosition());
+            }
+        }
+        return false;
     }
 
     /**
