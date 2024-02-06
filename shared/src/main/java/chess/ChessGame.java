@@ -3,8 +3,6 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
-import chess.pieces.*;
-
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -69,6 +67,14 @@ public class ChessGame {
             }
             return legalKingMoves;
         }
+        if (isInCheck(pieces.getPiece(startPosition).getTeamColor())) {
+            Collection<ChessMove> allMoves = pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
+            Collection<ChessMove> legalMoves = new HashSet<>();
+            for (ChessMove move: allMoves) {
+                legalMoveChecker(legalMoves, move);
+            }
+            return legalMoves;
+        }
         return pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
     }
 
@@ -84,6 +90,20 @@ public class ChessGame {
         }
         if (doesNotMakeCheck) {
             legalKingMoves.add(move);
+        }
+    }
+
+    private void legalMoveChecker(Collection<ChessMove> legalMoves, ChessMove move) {
+        ChessPiece savedPiece = pieces.getPiece(move.getEndPosition());
+        pieces.addPiece(move.getEndPosition(), pieces.getPiece(move.getStartPosition()));
+        pieces.deletePiece(move.getStartPosition());
+        if (!isInCheck(pieces.getPiece(move.getEndPosition()).getTeamColor())) {
+            legalMoves.add(move);
+        }
+        pieces.addPiece(move.getStartPosition(), pieces.getPiece(move.getEndPosition()));
+        pieces.deletePiece(move.getEndPosition());
+        if (savedPiece != null) {
+            pieces.addPiece(move.getEndPosition(), savedPiece);
         }
     }
 
@@ -170,7 +190,7 @@ public class ChessGame {
             return false;
         }
         if (currentPiece.getTeamColor() != teamColor) {
-            Collection<ChessMove> validMoveSet = validMoves(new ChessPosition(row, col));
+            Collection<ChessMove> validMoveSet = currentPiece.pieceMoves(pieces, new ChessPosition(row, col));
             for (ChessMove move: validMoveSet) {
                 if (move.getEndPosition().equals(kingPosition)) {
                     return true;
