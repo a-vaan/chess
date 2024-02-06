@@ -67,15 +67,13 @@ public class ChessGame {
             }
             return legalKingMoves;
         }
-        if (isInCheck(pieces.getPiece(startPosition).getTeamColor())) {
-            Collection<ChessMove> allMoves = pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
-            Collection<ChessMove> legalMoves = new HashSet<>();
-            for (ChessMove move: allMoves) {
-                legalMoveChecker(legalMoves, move);
-            }
-            return legalMoves;
+        Collection<ChessMove> allMoves = pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
+        Collection<ChessMove> legalMoves = new HashSet<>();
+        for (ChessMove move: allMoves) {
+            legalMoveChecker(legalMoves, move);
         }
-        return pieces.getPiece(startPosition).pieceMoves(pieces, startPosition);
+        return legalMoves;
+
     }
 
     private void kingMoveChecker(Collection<ChessMove> legalKingMoves, ChessMove move) {
