@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
+import model.request.LoginRequest;
 import model.request.RegisterRequest;
 import model.result.ErrorMessage;
 import service.DeleteService;
@@ -27,6 +28,7 @@ public class Server {
 
         Spark.init();
         Spark.post("/user", this::registerHandler);
+        Spark.post("/session", this::loginHandler);
         Spark.delete("/db", this::deleteHandler);
 
         Spark.awaitInitialization();
@@ -39,16 +41,35 @@ public class Server {
             var reg = new Gson().fromJson(request.body(), RegisterRequest.class);
             var res = userService.register(reg);
             return new Gson().toJson(res);
-        } catch(DataAccessException exception) {
-            if(Objects.equals(exception.toString(), "User already exists")) {
+        } catch(DataAccessException e) {
+            if(Objects.equals(e.getMessage(), "User already exists")) {
                 response.status(403);
                 return new Gson().toJson(new ErrorMessage("Error: already taken"));
             }
+            if(Objects.equals(e.getMessage(), "Bad request")) {
+                response.status(400);
+                return new Gson().toJson(new ErrorMessage("Error: bad request"));
+            }
             response.status(500);
-            return new Gson().toJson(new ErrorMessage(exception.toString()));
+            return new Gson().toJson(new ErrorMessage("Error: DataAccessException thrown but not caught correctly"));
         } catch(Exception e) {
             response.status(500);
-            return new Gson().toJson(new ErrorMessage(e.toString()));
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        }
+    }
+
+    private Object loginHandler(Request request, Response response) {
+        UserService userService = new UserService(userDAO, authDAO);
+        try {
+            var reg = new Gson().fromJson(request.body(), LoginRequest.class);
+            var res = userService.login(reg);
+            return new Gson().toJson(res);
+        } catch(DataAccessException e) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
+        } catch(Exception e) {
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
         }
     }
 

@@ -1,3 +1,3 @@
 package model.result;
 
-public record RegisterResult(String username, String authToken, String errorMessage) {}
+public record RegisterResult(String username, String authToken) {}
