@@ -2,10 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataAccess.*;
-import model.request.CreateGameRequest;
-import model.request.LoginRequest;
-import model.request.LogoutRequest;
-import model.request.RegisterRequest;
+import model.request.*;
 import model.result.ErrorMessage;
 import service.DeleteService;
 import service.GameService;
@@ -33,6 +30,7 @@ public class Server {
         Spark.post("/session", this::loginHandler);
         Spark.delete("/session", this::logoutHandler);
         Spark.post("/game", this::createGameHandler);
+        Spark.put("/game", this::joinGameHandler);
         Spark.delete("/db", this::deleteHandler);
 
         Spark.awaitInitialization();
@@ -108,6 +106,35 @@ public class Server {
             if(Objects.equals(e.getMessage(), "Unauthorized")) {
                 response.status(401);
                 return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
+            }
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage("Error: DataAccessException thrown but not caught correctly"));
+        } catch(Exception e) {
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        }
+    }
+
+    private Object joinGameHandler(Request request, Response response) {
+        GameService gameService = new GameService(gameDAO, authDAO);
+
+        try {
+            String authToken = request.headers("authorization");
+            var req = new Gson().fromJson(request.body(), JoinGameRequest.class);
+            gameService.joinGame(req, authToken);
+            return "";
+        } catch(DataAccessException e) {
+            if(Objects.equals(e.getMessage(), "Bad request")) {
+                response.status(400);
+                return new Gson().toJson(new ErrorMessage("Error: bad request"));
+            }
+            if(Objects.equals(e.getMessage(), "Unauthorized")) {
+                response.status(401);
+                return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
+            }
+            if(Objects.equals(e.getMessage(), "Already taken")) {
+                response.status(403);
+                return new Gson().toJson(new ErrorMessage("Error: already taken"));
             }
             response.status(500);
             return new Gson().toJson(new ErrorMessage("Error: DataAccessException thrown but not caught correctly"));

@@ -3,6 +3,7 @@ package dataAccess;
 import chess.ChessGame;
 import model.GameData;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -19,8 +20,18 @@ public class GameDAOMemory implements GameDAO {
     }
 
     @Override
+    public void updateGame(GameData game) {
+        games.put(game.gameID(), game);
+    }
+
+    @Override
     public GameData getGame(int gameID) {
         return games.get(gameID);
+    }
+
+    @Override
+    public Collection<GameData> listGames() {
+        return games.values();
     }
 
     @Override
