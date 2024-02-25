@@ -15,8 +15,8 @@ import java.util.Objects;
 
 public class UserService {
 
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
@@ -41,29 +41,29 @@ public class UserService {
         return new RegisterResult(reg.username(), auth);
     }
 
-    public LoginResult login(LoginRequest reg) throws DataAccessException {
-        UserData user = userDAO.getUser(reg.username());
+    public LoginResult login(LoginRequest req) throws DataAccessException {
+        UserData user = userDAO.getUser(req.username());
 
         if(user == null) {
             throw new DataAccessException("Unauthorized");
         }
 
-        if(!Objects.equals(user.password(), reg.password())) {
+        if(!Objects.equals(user.password(), req.password())) {
             throw new DataAccessException("Unauthorized");
         }
 
-        String auth = authDAO.createAuth(reg.username());
-        return new LoginResult(reg.username(), auth);
+        String auth = authDAO.createAuth(req.username());
+        return new LoginResult(req.username(), auth);
     }
 
-    public void logout(LogoutRequest reg) throws DataAccessException {
-        AuthData authData = authDAO.getAuth(reg.authToken());
+    public void logout(LogoutRequest req) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(req.authToken());
 
         if(authData == null) {
             throw new DataAccessException("Unauthorized");
         }
 
-        authDAO.deleteAuth(reg.authToken());
+        authDAO.deleteAuth(req.authToken());
     }
 
 }
