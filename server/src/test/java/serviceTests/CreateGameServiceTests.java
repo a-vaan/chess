@@ -13,7 +13,7 @@ public class CreateGameServiceTests {
 
     @Test
     void createGameServiceSuccess() throws DataAccessException {
-        // create new databases and initialize UserService
+        // create new databases and initialize GameService
         GameDAO gameDAO = new GameDAOMemory();
         AuthDAO authDAO = new AuthDAOMemory();
         GameService gameService = new GameService(gameDAO, authDAO);
