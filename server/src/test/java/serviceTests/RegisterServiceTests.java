@@ -1,15 +1,14 @@
 package serviceTests;
 
 import dataAccess.*;
+import dataAccess.DAOInterfaces.AuthDAO;
+import dataAccess.DAOInterfaces.UserDAO;
+import dataAccess.MemoryDAOs.AuthDAOMemory;
+import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.RegisterRequest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.DeleteService;
 import service.UserService;
-
-import java.net.HttpURLConnection;
-import java.util.Objects;
 
 public class RegisterServiceTests {
 
@@ -49,7 +48,7 @@ public class RegisterServiceTests {
     }
 
     @Test
-    void registerServiceError400() throws DataAccessException {
+    void registerServiceError400() {
         // create new databases and initialize UserService
         UserDAO userDAO = new UserDAOMemory();
         AuthDAO authDAO = new AuthDAOMemory();

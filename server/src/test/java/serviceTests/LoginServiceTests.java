@@ -1,6 +1,10 @@
 package serviceTests;
 
 import dataAccess.*;
+import dataAccess.DAOInterfaces.AuthDAO;
+import dataAccess.DAOInterfaces.UserDAO;
+import dataAccess.MemoryDAOs.AuthDAOMemory;
+import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.LoginRequest;
 import model.result.LoginResult;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +33,7 @@ public class LoginServiceTests {
     }
 
     @Test
-    void loginServiceErrors() throws DataAccessException {
+    void loginServiceErrors() {
         // create new databases and initialize UserService
         UserDAO userDAO = new UserDAOMemory();
         AuthDAO authDAO = new AuthDAOMemory();

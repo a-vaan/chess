@@ -1,4 +1,4 @@
-package dataAccess;
+package dataAccess.DAOInterfaces;
 
 import model.GameData;
 

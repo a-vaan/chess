@@ -1,6 +1,7 @@
-package dataAccess;
+package dataAccess.MemoryDAOs;
 
 import chess.ChessGame;
+import dataAccess.DAOInterfaces.GameDAO;
 import model.GameData;
 
 import java.util.Collection;

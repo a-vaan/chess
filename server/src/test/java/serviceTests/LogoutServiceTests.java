@@ -1,6 +1,10 @@
 package serviceTests;
 
 import dataAccess.*;
+import dataAccess.DAOInterfaces.AuthDAO;
+import dataAccess.DAOInterfaces.UserDAO;
+import dataAccess.MemoryDAOs.AuthDAOMemory;
+import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.LogoutRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

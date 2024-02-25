@@ -1,8 +1,8 @@
 package service;
 
-import dataAccess.AuthDAO;
+import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.DAOInterfaces.UserDAO;
 import model.AuthData;
 import model.UserData;
 import model.request.LoginRequest;

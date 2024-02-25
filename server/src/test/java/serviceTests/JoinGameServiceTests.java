@@ -1,6 +1,10 @@
 package serviceTests;
 
 import dataAccess.*;
+import dataAccess.DAOInterfaces.AuthDAO;
+import dataAccess.DAOInterfaces.GameDAO;
+import dataAccess.MemoryDAOs.AuthDAOMemory;
+import dataAccess.MemoryDAOs.GameDAOMemory;
 import model.GameData;
 import model.request.JoinGameRequest;
 import org.junit.jupiter.api.Assertions;
