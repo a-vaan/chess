@@ -7,7 +7,9 @@ import model.AuthData;
 import model.GameData;
 import model.request.CreateGameRequest;
 import model.request.JoinGameRequest;
+import model.request.ListGamesRequest;
 import model.result.CreateGameResult;
+import model.result.ListGamesResult;
 
 public class GameService {
 
@@ -65,5 +67,14 @@ public class GameService {
         }
 
         gameDAO.updateGame(game);
+    }
+
+    public ListGamesResult listGames(ListGamesRequest req) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(req.authToken());
+        if(authData == null) {
+            throw new DataAccessException("Unauthorized");
+        }
+
+        return new ListGamesResult(gameDAO.listGames());
     }
 }

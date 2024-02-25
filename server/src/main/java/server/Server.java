@@ -31,6 +31,7 @@ public class Server {
         Spark.delete("/session", this::logoutHandler);
         Spark.post("/game", this::createGameHandler);
         Spark.put("/game", this::joinGameHandler);
+        Spark.get("/game", this::listGamesHandler);
         Spark.delete("/db", this::deleteHandler);
 
         Spark.awaitInitialization();
@@ -138,6 +139,22 @@ public class Server {
             }
             response.status(500);
             return new Gson().toJson(new ErrorMessage("Error: DataAccessException thrown but not caught correctly"));
+        } catch(Exception e) {
+            response.status(500);
+            return new Gson().toJson(new ErrorMessage(e.getMessage()));
+        }
+    }
+
+    private Object listGamesHandler(Request request, Response response) {
+        GameService gameService = new GameService(gameDAO, authDAO);
+
+        try {
+            ListGamesRequest req = new ListGamesRequest(request.headers("authorization"));
+            var res = gameService.listGames(req);
+            return new Gson().toJson(res);
+        } catch(DataAccessException e) {
+            response.status(401);
+            return new Gson().toJson(new ErrorMessage("Error: unauthorized"));
         } catch(Exception e) {
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.getMessage()));
