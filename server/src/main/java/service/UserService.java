@@ -23,6 +23,13 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
+    /**
+     * Registers the user and saves their data to the database.
+     *
+     * @param reg: RegisterRequest containing the username, password, and email of the specified user
+     * return: RegisterResult object containing the username and authToken
+     * @throws DataAccessException: to be thrown if the user already exists or submits a bad request
+     */
     public RegisterResult register(RegisterRequest reg) throws DataAccessException {
         if(reg.username() == null || reg.username().isEmpty() ||
                 reg.password() == null || reg.password().isEmpty() ||
@@ -41,6 +48,13 @@ public class UserService {
         return new RegisterResult(reg.username(), auth);
     }
 
+    /**
+     * Logs in the user by checking that the submitted password matches the password in the database.
+     *
+     * @param req: LoginRequest object containing the username and password of the user
+     * return: LoginResult object containing the username and authToken
+     * @throws DataAccessException: to be thrown if the user is not authorized
+     */
     public LoginResult login(LoginRequest req) throws DataAccessException {
         UserData user = userDAO.getUser(req.username());
 
@@ -56,6 +70,12 @@ public class UserService {
         return new LoginResult(req.username(), auth);
     }
 
+    /**
+     * Logs out the user and deletes their authToken
+     *
+     * @param req: LogoutRequest object containing the authToken of the user
+     * @throws DataAccessException: to be thrown if the user is not authorized
+     */
     public void logout(LogoutRequest req) throws DataAccessException {
         AuthData authData = authDAO.getAuth(req.authToken());
 

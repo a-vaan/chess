@@ -16,6 +16,9 @@ public class DeleteService {
         this.gameDAO = gameDAO;
     }
 
+    /**
+     * Deletes all objects in all databases.
+     */
     public void deleteAll() {
         userDAO.deleteAllUsers();
         authDAO.deleteAllAuths();

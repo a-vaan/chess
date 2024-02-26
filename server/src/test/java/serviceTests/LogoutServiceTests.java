@@ -40,11 +40,8 @@ public class LogoutServiceTests {
         // save the username to the database
         authDAO.createAuth("TestUsername");
 
-        // create a random authToken
-        String authToken = UUID.randomUUID().toString();
-
         // if the AuthData object is not in the database, an error should be thrown
-        LogoutRequest reg = new LogoutRequest(authToken);
+        LogoutRequest reg = new LogoutRequest(UUID.randomUUID().toString());
         Assertions.assertThrows(DataAccessException.class, () -> userService.logout(reg));
     }
 

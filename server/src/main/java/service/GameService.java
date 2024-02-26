@@ -21,6 +21,14 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
+    /**
+     * Creates a new GameData object and saves it to the database.
+     *
+     * @param req: CreateGameRequest object containing the gameName as a string
+     * @param authToken: the authToken of the user trying to make the game
+     * return: CreateGameResult object containing the gameID
+     * @throws DataAccessException: to be thrown if the user is not authorized or submits a bad request
+     */
     public CreateGameResult createGame(CreateGameRequest req, String authToken) throws DataAccessException {
         AuthData authData = authDAO.getAuth(authToken);
 
@@ -36,8 +44,16 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
+    /**
+     * Attempts to join the player to a game if they specify a color, and if not add them as a viewer.
+     *
+     * @param req: JoinGameRequest object containing the player color and gameID
+     * @param authToken: the authToken of the user trying to make the game
+     * @throws DataAccessException: to be thrown if the user is not authorized or submits a bad request
+     */
     public void joinGame(JoinGameRequest req, String authToken) throws DataAccessException {
         AuthData authData = authDAO.getAuth(authToken);
+
         if(authData == null) {
             throw new DataAccessException("Unauthorized");
         }
@@ -69,8 +85,16 @@ public class GameService {
         gameDAO.updateGame(game);
     }
 
+    /**
+     * Lists all the games currently in the database.
+     *
+     * @param req: ListGamesRequest object containing the authToken
+     * return: ListGames result object containing a list of all GameData objects in the database
+     * @throws DataAccessException: to be thrown if the user is not authorized
+     */
     public ListGamesResult listGames(ListGamesRequest req) throws DataAccessException {
         AuthData authData = authDAO.getAuth(req.authToken());
+
         if(authData == null) {
             throw new DataAccessException("Unauthorized");
         }
