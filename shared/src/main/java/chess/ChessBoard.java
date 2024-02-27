@@ -84,18 +84,6 @@ public class ChessBoard {
         this.addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
     }
 
-    public ChessBoard copyBoard() {
-        ChessBoard newBoard = new ChessBoard();
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                if (squares[row - 1][col - 1] != null) {
-                    newBoard.addPiece(new ChessPosition(row, col), squares[row - 1][col - 1].copyChessPiece());
-                }
-            }
-        }
-        return newBoard;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

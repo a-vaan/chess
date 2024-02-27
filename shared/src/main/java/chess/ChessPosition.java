@@ -18,10 +18,6 @@ public class ChessPosition {
         this.col = col;
     }
 
-    public void setPosition(int r, int c){
-        row = r;
-        col = c;
-    }
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
@@ -38,13 +34,25 @@ public class ChessPosition {
         return col;
     }
 
-    public ChessPosition clone () {
+    public void setRow(int r) {
+        row = r;
+    }
+
+    public void setColumn(int c) {
+        col = c;
+    }
+
+    public boolean isSafe () {
+        return row <= 8 && row >= 1 && col <= 8 && col >= 1;
+    }
+
+    public ChessPosition makeNew () {
         return new ChessPosition(row, col);
     }
 
-    public void reset (ChessPosition originalPosition) {
-        this.row = originalPosition.getRow();
-        this.col = originalPosition.getColumn();
+    @Override
+    public String toString() {
+        return "(" + row + ", " + col + ")";
     }
 
     @Override
@@ -58,13 +66,5 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(row, col);
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPosition{" +
-                "row=" + row +
-                ", col=" + col +
-                '}';
     }
 }

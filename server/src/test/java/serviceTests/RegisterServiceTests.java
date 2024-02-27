@@ -20,19 +20,19 @@ public class RegisterServiceTests {
         UserService userService = new UserService(userDAO, authDAO);
 
         // make sure the correct info was put into the database and that the response item is correct.
-        RegisterRequest reg = new RegisterRequest("TestUsername", "TestPassword", "Test@Email");
+        RegisterRequest reg = new RegisterRequest("TestUsernameReg", "TestPasswordReg", "Test@EmailReg");
         var res = userService.register(reg);
-        Assertions.assertEquals("TestUsername", userDAO.getUser("TestUsername").username());
-        Assertions.assertEquals("TestPassword", userDAO.getUser("TestUsername").password());
-        Assertions.assertEquals("Test@Email", userDAO.getUser("TestUsername").email());
-        Assertions.assertEquals("TestUsername", res.username());
+        Assertions.assertEquals("TestUsernameReg", userDAO.getUser("TestUsernameReg").username());
+        Assertions.assertEquals("TestPasswordReg", userDAO.getUser("TestUsernameReg").password());
+        Assertions.assertEquals("Test@EmailReg", userDAO.getUser("TestUsernameReg").email());
+        Assertions.assertEquals("TestUsernameReg", res.username());
         Assertions.assertNotEquals("", res.authToken());
 
 
     }
 
     @Test
-    void registerServiceError403() throws DataAccessException {
+    void registerServiceErrors() throws DataAccessException {
         // create new databases and initialize UserService
         UserDAO userDAO = new UserDAOMemory();
         AuthDAO authDAO = new AuthDAOMemory();
@@ -45,19 +45,8 @@ public class RegisterServiceTests {
         RegisterRequest sameReg = new RegisterRequest("TestUsername1", "TestPassword1", "Test@Email1");
         Assertions.assertThrows(DataAccessException.class, () -> userService.register(sameReg));
 
-    }
-
-    @Test
-    void registerServiceError400() {
-        // create new databases and initialize UserService
-        UserDAO userDAO = new UserDAOMemory();
-        AuthDAO authDAO = new AuthDAOMemory();
-        UserService userService = new UserService(userDAO, authDAO);
-
         // submit an unacceptable RegisterRequest object
-        RegisterRequest reg = new RegisterRequest("", "TestPassword", "Test@Email");
-        Assertions.assertThrows(DataAccessException.class, () -> userService.register(reg));
-
-    }
+        RegisterRequest newReg = new RegisterRequest("", "TestPassword", "Test@Email");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.register(newReg));    }
 
 }
