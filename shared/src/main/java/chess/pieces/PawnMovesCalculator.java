@@ -44,15 +44,12 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
     private void whiteCheckEnemies(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moves) {
         currentPosition.setRow(currentPosition.getRow() + 1);
         currentPosition.setColumn(currentPosition.getColumn() - 1);
-        if (currentPosition.isSafe() && board.getPiece(currentPosition) != null &&
-                board.getPiece(currentPosition).getTeamColor() == ChessGame.TeamColor.BLACK) {
-            if (currentPosition.getRow() == 8) {
-                promote (myPosition, currentPosition, moves);
-            } else {
-                moves.add(new ChessMove(myPosition.makeNew(), currentPosition.makeNew(), null));
-            }
-        }
+        whiteCheckEnemiesDuplicate(board, myPosition, currentPosition, moves);
         currentPosition.setColumn(currentPosition.getColumn() + 2);
+        whiteCheckEnemiesDuplicate(board, myPosition, currentPosition, moves);
+    }
+
+    private void whiteCheckEnemiesDuplicate(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moves) {
         if (currentPosition.isSafe() && board.getPiece(currentPosition) != null &&
                 board.getPiece(currentPosition).getTeamColor() == ChessGame.TeamColor.BLACK) {
             if (currentPosition.getRow() == 8) {
@@ -89,15 +86,12 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
     private void blackCheckEnemies(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moves) {
         currentPosition.setRow(currentPosition.getRow() - 1);
         currentPosition.setColumn(currentPosition.getColumn() - 1);
-        if (currentPosition.isSafe() && board.getPiece(currentPosition) != null &&
-                board.getPiece(currentPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
-            if (currentPosition.getRow() == 1) {
-                promote (myPosition, currentPosition, moves);
-            } else {
-                moves.add(new ChessMove(myPosition.makeNew(), currentPosition.makeNew(), null));
-            }
-        }
+        blackCheckEnemiesDuplicate(board, myPosition, currentPosition, moves);
         currentPosition.setColumn(currentPosition.getColumn() + 2);
+        blackCheckEnemiesDuplicate(board, myPosition, currentPosition, moves);
+    }
+
+    private void blackCheckEnemiesDuplicate(ChessBoard board, ChessPosition myPosition, ChessPosition currentPosition, HashSet<ChessMove> moves) {
         if (currentPosition.isSafe() && board.getPiece(currentPosition) != null &&
                 board.getPiece(currentPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
             if (currentPosition.getRow() == 1) {

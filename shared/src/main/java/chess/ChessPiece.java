@@ -22,10 +22,6 @@ public class ChessPiece {
         this.type = type;
     }
 
-    public ChessPiece copyChessPiece() {
-        return new ChessPiece(pieceColor, type);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
