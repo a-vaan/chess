@@ -42,12 +42,14 @@ public class AuthDAODatabase implements AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) {
-
+        var statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
     public void deleteAllAuths() {
-
+        var statement = "TRUNCATE auth";
+        executeUpdate(statement);
     }
 
     private int executeUpdate(String statement, Object... params) {
