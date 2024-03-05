@@ -3,7 +3,10 @@ package dataAccess;
 import dataAccess.DAOInterfaces.AuthDAO;
 import model.AuthData;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class AuthDAODatabase implements AuthDAO {
 
@@ -13,11 +16,27 @@ public class AuthDAODatabase implements AuthDAO {
 
     @Override
     public String createAuth(String username) {
-        return null;
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        String authToken = UUID.randomUUID().toString();
+        executeUpdate(statement, authToken, username);
+        return authToken;
     }
 
     @Override
     public AuthData getAuth(String authToken) {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AuthData(rs.getString(1), rs.getString(2));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         return null;
     }
 
@@ -31,19 +50,37 @@ public class AuthDAODatabase implements AuthDAO {
 
     }
 
+    private int executeUpdate(String statement, Object... params) {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+
+                var rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+
+                return 0;
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  pet (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `type` ENUM('CAT', 'DOG', 'FISH', 'FROG', 'ROCK') DEFAULT 'CAT',
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
-              INDEX(type),
-              INDEX(name)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            CREATE TABLE IF NOT EXISTS  auth (
+              `authToken` varchar(45) NOT NULL,
+              `username` varchar(45) NOT NULL,
+              PRIMARY KEY (`authToken`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """
-    };
+};
 
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
