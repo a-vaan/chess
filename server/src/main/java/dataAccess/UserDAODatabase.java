@@ -1,54 +1,46 @@
 package dataAccess;
 
-import dataAccess.DAOInterfaces.AuthDAO;
-import model.AuthData;
+import dataAccess.DAOInterfaces.UserDAO;
+import model.UserData;
+
+import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
-import java.sql.SQLException;
-import java.util.UUID;
 
-public class AuthDAODatabase implements AuthDAO {
+public class UserDAODatabase implements UserDAO {
 
-    public AuthDAODatabase() throws DataAccessException {
+    public UserDAODatabase() throws DataAccessException {
         configureDatabase();
     }
 
     @Override
-    public String createAuth(String username) {
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        String authToken = UUID.randomUUID().toString();
-        executeUpdate(statement, authToken, username);
-        return authToken;
-    }
-
-    @Override
-    public AuthData getAuth(String authToken) {
+    public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            var statement = "SELECT username, password, email FROM user WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
+                ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new AuthData(rs.getString(1), rs.getString(2));
+                        return new UserData(rs.getString(1), rs.getString(2), rs.getString(3));
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println(e);
+            throw new DataAccessException(e.toString());
         }
         return null;
     }
 
     @Override
-    public void deleteAuth(String authToken) {
-        var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, authToken);
+    public void createUser(String username, String password, String email) {
+        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        executeUpdate(statement, username, password, email);
     }
 
     @Override
-    public void deleteAllAuths() {
-        var statement = "TRUNCATE auth";
+    public void deleteAllUsers() {
+        var statement = "TRUNCATE user";
         executeUpdate(statement);
     }
 
@@ -76,10 +68,11 @@ public class AuthDAODatabase implements AuthDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  auth (
-              `authToken` varchar(45) NOT NULL,
+            CREATE TABLE IF NOT EXISTS  user (
               `username` varchar(45) NOT NULL,
-              PRIMARY KEY (`authToken`)
+              `password` varchar(45) NOT NULL,
+              `email` varchar(45) NOT NULL,
+              PRIMARY KEY (`username`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """
     };
@@ -93,7 +86,7 @@ public class AuthDAODatabase implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.toString());
         }
     }
 }

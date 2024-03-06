@@ -1,4 +1,4 @@
-package dataAccess.DatabaseDAOs;
+package dataAccess;
 
 import dataAccess.DAOInterfaces.GameDAO;
 import model.GameData;
