@@ -1,5 +1,6 @@
 package dataAccess.DAOInterfaces;
 
+import dataAccess.DataAccessException;
 import model.GameData;
 
 import java.util.Collection;
@@ -27,13 +28,13 @@ public interface GameDAO {
      * @param gameID: gameID of the desired game
      * return: the GameData object saved with the specified gameID
      */
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
     /**
      * Lists all the games currently contained in the database.
      * return: a list of all GameData objects in the database
      */
-    Collection<GameData> listGames();
+    Collection<GameData> listGames() throws DataAccessException;
 
     /**
      * Deletes all the GameData objects in the database.
