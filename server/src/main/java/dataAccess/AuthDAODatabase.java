@@ -11,15 +11,29 @@ import java.util.UUID;
 public class AuthDAODatabase implements AuthDAO {
 
     public AuthDAODatabase() throws DataAccessException {
-        configureDatabase();
+        DAODatabaseFunctions daoFunctions = new DAODatabaseFunctions();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  auth (
+              `authToken` varchar(45) NOT NULL,
+              `username` varchar(45) NOT NULL,
+              PRIMARY KEY (`authToken`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            """
+        };
+        daoFunctions.configureDatabase(createStatements);
     }
 
     @Override
-    public String createAuth(String username) {
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        String authToken = UUID.randomUUID().toString();
-        executeUpdate(statement, authToken, username);
-        return authToken;
+    public String createAuth(String username) throws DataAccessException {
+        try {
+            var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+            String authToken = UUID.randomUUID().toString();
+            executeUpdate(statement, authToken, username);
+            return authToken;
+        } catch (Exception e) {
+            throw new DataAccessException(e.toString());
+        }
     }
 
     @Override
@@ -74,26 +88,16 @@ public class AuthDAODatabase implements AuthDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  auth (
-              `authToken` varchar(45) NOT NULL,
-              `username` varchar(45) NOT NULL,
-              PRIMARY KEY (`authToken`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    //    private void configureDatabase() throws DataAccessException {
+//        DatabaseManager.createDatabase();
+//        try (var conn = DatabaseManager.getConnection()) {
+//            for (var statement : createStatements) {
+//                try (var preparedStatement = conn.prepareStatement(statement)) {
+//                    preparedStatement.executeUpdate();
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

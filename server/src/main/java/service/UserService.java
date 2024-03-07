@@ -10,6 +10,7 @@ import model.request.LogoutRequest;
 import model.request.RegisterRequest;
 import model.result.LoginResult;
 import model.result.RegisterResult;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Objects;
 
@@ -43,7 +44,10 @@ public class UserService {
             throw new DataAccessException("User already exists");
         }
 
-        userDAO.createUser(reg.username(), reg.password(), reg.email());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(reg.password());
+
+        userDAO.createUser(reg.username(), hashedPassword, reg.email());
         String auth = authDAO.createAuth(reg.username());
         return new RegisterResult(reg.username(), auth);
     }
@@ -62,7 +66,9 @@ public class UserService {
             throw new DataAccessException("Unauthorized");
         }
 
-        if(!Objects.equals(user.password(), req.password())) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if(!encoder.matches(req.password(), user.password())) {
             throw new DataAccessException("Unauthorized");
         }
 

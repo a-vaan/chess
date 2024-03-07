@@ -16,7 +16,20 @@ import static java.sql.Types.NULL;
 public class GameDAODatabase implements GameDAO {
 
     public GameDAODatabase() throws DataAccessException {
-        configureDatabase();
+        DAODatabaseFunctions daoFunctions = new DAODatabaseFunctions();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  game (
+              `gameID` int NOT NULL AUTO_INCREMENT,
+              `whiteUserName` varchar(45) DEFAULT NULL,
+              `blackUserName` varchar(45) DEFAULT NULL,
+              `gameName` varchar(45) NOT NULL,
+              `gameData` TEXT(65000) DEFAULT NULL,
+              PRIMARY KEY (`gameID`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            """
+        };
+        daoFunctions.configureDatabase(createStatements);
     }
 
     @Override
@@ -33,10 +46,11 @@ public class GameDAODatabase implements GameDAO {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "UPDATE game SET whiteUserName = ?, blackUserName = ?, gameName = ?, gameData = ? WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setInt(1, gameID);
-                ps.setString(2, game.whiteUsername());
-                ps.setString(3, game.blackUsername());
-                ps.setString(2, new Gson().toJson(game.game()));
+                ps.setString(1, game.whiteUsername());
+                ps.setString(2, game.blackUsername());
+                ps.setString(3, game.gameName());
+                ps.setString(4, new Gson().toJson(game.game()));
+                ps.setInt(5, gameID);
                 ps.executeUpdate();
             }
         } catch (Exception e) {
@@ -119,29 +133,16 @@ public class GameDAODatabase implements GameDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  game (
-              `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUserName` varchar(45) DEFAULT NULL,
-              `blackUserName` varchar(45) DEFAULT NULL,
-              `gameName` varchar(45) NOT NULL,
-              `gameData` TEXT DEFAULT NULL,
-              PRIMARY KEY (`gameID`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    //    private void configureDatabase() throws DataAccessException {
+//        DatabaseManager.createDatabase();
+//        try (var conn = DatabaseManager.getConnection()) {
+//            for (var statement : createStatements) {
+//                try (var preparedStatement = conn.prepareStatement(statement)) {
+//                    preparedStatement.executeUpdate();
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

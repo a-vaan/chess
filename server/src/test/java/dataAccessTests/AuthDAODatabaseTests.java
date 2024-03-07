@@ -25,6 +25,15 @@ public class AuthDAODatabaseTests {
     }
 
     @Test
+    void createAuthFail() throws DataAccessException {
+        AuthDAO createAuthDAO = new AuthDAODatabase();
+
+        createAuthDAO.createAuth("TestUsername");
+
+        Assertions.assertThrows(DataAccessException.class, () -> createAuthDAO.createAuth("TestUsername"));
+    }
+
+    @Test
     void getAuthSuccess() throws DataAccessException {
         AuthDAO getAuthDAO = new AuthDAODatabase();
 

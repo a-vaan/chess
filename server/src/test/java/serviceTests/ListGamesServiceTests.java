@@ -38,7 +38,7 @@ public class ListGamesServiceTests {
     }
 
     @Test
-    void listGamesServiceErrors() {
+    void listGamesServiceErrors() throws DataAccessException {
         // create new databases and initialize GameService
         GameDAO listGameErrorDAO = new GameDAOMemory();
         AuthDAO listAuthErrorDAO = new AuthDAOMemory();

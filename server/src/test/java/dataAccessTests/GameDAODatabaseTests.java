@@ -54,9 +54,6 @@ public class GameDAODatabaseTests {
         int gameID = updateGameDAO.createGame("TestGameUpdate");
         int gameID1 = updateGameDAO.createGame("TestGameUpdate1");
 
-        GameData retrievedData = updateGameDAO.getGame(gameID);
-        GameData retrievedData1 = updateGameDAO.getGame(gameID1);
-
         ChessGame newChessGame = new ChessGame();
         newChessGame.setBoard(new ChessBoard());
 
@@ -64,6 +61,9 @@ public class GameDAODatabaseTests {
 
         GameData newGameData = new GameData(gameID, null, null, "TestGameUpdate", newChessGame);
         GameData newGameData1 = new GameData(gameID1, null, null, "TestGameUpdate1", new ChessGame());
+
+        GameData retrievedData = updateGameDAO.getGame(gameID);
+        GameData retrievedData1 = updateGameDAO.getGame(gameID1);
 
         Assertions.assertEquals(newGameData, retrievedData);
         Assertions.assertEquals(newGameData1, retrievedData1);

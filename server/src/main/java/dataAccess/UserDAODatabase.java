@@ -11,7 +11,18 @@ import static java.sql.Types.NULL;
 public class UserDAODatabase implements UserDAO {
 
     public UserDAODatabase() throws DataAccessException {
-        configureDatabase();
+        DAODatabaseFunctions daoFunctions = new DAODatabaseFunctions();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS  user (
+              `username` varchar(45) NOT NULL,
+              `password` varchar(254) NOT NULL,
+              `email` varchar(45) NOT NULL,
+              PRIMARY KEY (`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            """
+        };
+        daoFunctions.configureDatabase(createStatements);
     }
 
     @Override
@@ -66,27 +77,16 @@ public class UserDAODatabase implements UserDAO {
         }
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  user (
-              `username` varchar(45) NOT NULL,
-              `password` varchar(45) NOT NULL,
-              `email` varchar(45) NOT NULL,
-              PRIMARY KEY (`username`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.toString());
-        }
-    }
+    //    private void configureDatabase() throws DataAccessException {
+//        DatabaseManager.createDatabase();
+//        try (var conn = DatabaseManager.getConnection()) {
+//            for (var statement : createStatements) {
+//                try (var preparedStatement = conn.prepareStatement(statement)) {
+//                    preparedStatement.executeUpdate();
+//                }
+//            }
+//        } catch (SQLException e) {
+//            throw new DataAccessException(e.toString());
+//        }
+//    }
 }

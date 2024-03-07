@@ -9,6 +9,7 @@ import model.request.LoginRequest;
 import model.result.LoginResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import service.UserService;
 
 public class LoginServiceTests {
@@ -20,8 +21,11 @@ public class LoginServiceTests {
         AuthDAO authDAO = new AuthDAOMemory();
         UserService userService = new UserService(userDAO, authDAO);
 
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode("TestPassword");
+
         // create the user information
-        userDAO.createUser("TestUsername", "TestPassword", "Test@Email");
+        userDAO.createUser("TestUsername", hashedPassword, "Test@Email");
 
         // make sure the function does not throw an exception and returns the correct response object.
         LoginRequest reg = new LoginRequest("TestUsername", "TestPassword");

@@ -1,5 +1,6 @@
 package dataAccess.DAOInterfaces;
 
+import dataAccess.DataAccessException;
 import model.AuthData;
 
 public interface AuthDAO {
@@ -10,7 +11,7 @@ public interface AuthDAO {
      * @param username: desired username
      * return: the authToken in the form of a string
      */
-    String createAuth(String username);
+    String createAuth(String username) throws DataAccessException;
 
     /**
      * Gets the authToken and associated username from the database.

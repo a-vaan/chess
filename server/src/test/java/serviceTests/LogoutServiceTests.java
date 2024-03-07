@@ -31,7 +31,7 @@ public class LogoutServiceTests {
     }
 
     @Test
-    void registerServiceError() {
+    void registerServiceError() throws DataAccessException {
         // create new databases and initialize UserService
         UserDAO userDAO = new UserDAOMemory();
         AuthDAO authDAO = new AuthDAOMemory();
