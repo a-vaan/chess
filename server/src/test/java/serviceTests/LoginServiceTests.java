@@ -3,8 +3,6 @@ package serviceTests;
 import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.UserDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.LoginRequest;
 import model.result.LoginResult;
 import org.junit.jupiter.api.Assertions;
@@ -17,8 +15,8 @@ public class LoginServiceTests {
     @Test
     void loginServiceSuccess() throws DataAccessException {
         // create new databases and initialize UserService
-        UserDAO userDAO = new UserDAOMemory();
-        AuthDAO authDAO = new AuthDAOMemory();
+        UserDAO userDAO = new UserDAODatabase();
+        AuthDAO authDAO = new AuthDAODatabase();
         UserService userService = new UserService(userDAO, authDAO);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -34,13 +32,16 @@ public class LoginServiceTests {
         Assertions.assertEquals(LoginResult.class, res.getClass());
         Assertions.assertNotEquals("", res.authToken());
         Assertions.assertNotEquals(null, res.authToken());
+
+        userDAO.deleteAllUsers();
+        authDAO.deleteAllAuths();
     }
 
     @Test
-    void loginServiceErrors() {
+    void loginServiceErrors() throws DataAccessException {
         // create new databases and initialize UserService
-        UserDAO userDAO = new UserDAOMemory();
-        AuthDAO authDAO = new AuthDAOMemory();
+        UserDAO userDAO = new UserDAODatabase();
+        AuthDAO authDAO = new AuthDAODatabase();
         UserService userService = new UserService(userDAO, authDAO);
 
         // create the user information
@@ -53,5 +54,8 @@ public class LoginServiceTests {
         // should throw an error when user does not exist
         LoginRequest newReg = new LoginRequest("TestWrongUsername", "TestPassword");
         Assertions.assertThrows(DataAccessException.class, () -> userService.login(newReg));
+
+        userDAO.deleteAllUsers();
+        authDAO.deleteAllAuths();
     }
 }

@@ -3,8 +3,6 @@ package serviceTests;
 import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.GameDAOMemory;
 import model.request.CreateGameRequest;
 import model.result.CreateGameResult;
 import org.junit.jupiter.api.Assertions;
@@ -18,8 +16,8 @@ public class CreateGameServiceTests {
     @Test
     void createGameServiceSuccess() throws DataAccessException {
         // create new databases and initialize GameService
-        GameDAO createGameDAO = new GameDAOMemory();
-        AuthDAO createAuthDAO = new AuthDAOMemory();
+        GameDAO createGameDAO = new GameDAODatabase();
+        AuthDAO createAuthDAO = new AuthDAODatabase();
         GameService gameService = new GameService(createGameDAO, createAuthDAO);
 
         // create an authToken and save the username to the database
@@ -30,15 +28,16 @@ public class CreateGameServiceTests {
         CreateGameResult res = gameService.createGame(req, authToken);
         Assertions.assertNotNull(createGameDAO.getGame(res.gameID()));
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         createGameDAO.deleteAllGames();
+        createAuthDAO.deleteAllAuths();
     }
 
     @Test
     void createGameServiceErrors() throws DataAccessException {
         // create new databases and initialize UserService
-        GameDAO createGameErrorDAO = new GameDAOMemory();
-        AuthDAO createAuthErrorDAO = new AuthDAOMemory();
+        GameDAO createGameErrorDAO = new GameDAODatabase();
+        AuthDAO createAuthErrorDAO = new AuthDAODatabase();
         GameService gameService = new GameService(createGameErrorDAO, createAuthErrorDAO);
 
         // create an authToken and save the username to the database
@@ -53,8 +52,9 @@ public class CreateGameServiceTests {
         CreateGameRequest newReq = new CreateGameRequest(null);
         Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(newReq, authToken));
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         createGameErrorDAO.deleteAllGames();
+        createAuthErrorDAO.deleteAllAuths();
     }
 
 }

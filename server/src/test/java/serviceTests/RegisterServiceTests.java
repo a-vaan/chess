@@ -3,8 +3,6 @@ package serviceTests;
 import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.UserDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.RegisterRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,13 +13,8 @@ public class RegisterServiceTests {
 
     @Test
     void registerServiceSuccess() throws DataAccessException {
-        // create new databases and initialize UserService
-        // UserDAO userDAO = new UserDAOMemory();
-        // AuthDAO authDAO = new AuthDAOMemory();
-
         UserDAO userDAO = new UserDAODatabase();
         AuthDAO authDAO = new AuthDAODatabase();
-
         UserService userService = new UserService(userDAO, authDAO);
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -36,14 +29,15 @@ public class RegisterServiceTests {
         Assertions.assertEquals("TestUsernameReg", res.username());
         Assertions.assertNotEquals("", res.authToken());
 
-
+        userDAO.deleteAllUsers();
+        authDAO.deleteAllAuths();
     }
 
     @Test
     void registerServiceErrors() throws DataAccessException {
         // create new databases and initialize UserService
-        UserDAO userDAO = new UserDAOMemory();
-        AuthDAO authDAO = new AuthDAOMemory();
+        UserDAO userDAO = new UserDAODatabase();
+        AuthDAO authDAO = new AuthDAODatabase();
         UserService userService = new UserService(userDAO, authDAO);
 
         RegisterRequest reg = new RegisterRequest("TestUsername1", "TestPassword1", "Test@Email1");
@@ -55,6 +49,9 @@ public class RegisterServiceTests {
 
         // submit an unacceptable RegisterRequest object
         RegisterRequest newReg = new RegisterRequest("", "TestPassword", "Test@Email");
-        Assertions.assertThrows(DataAccessException.class, () -> userService.register(newReg));    }
+        Assertions.assertThrows(DataAccessException.class, () -> userService.register(newReg));
 
+        userDAO.deleteAllUsers();
+        authDAO.deleteAllAuths();
+    }
 }

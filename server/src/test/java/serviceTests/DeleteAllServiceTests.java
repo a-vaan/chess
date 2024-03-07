@@ -4,9 +4,6 @@ import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
 import dataAccess.DAOInterfaces.UserDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.GameDAOMemory;
-import dataAccess.MemoryDAOs.UserDAOMemory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import service.DeleteService;
@@ -16,9 +13,9 @@ public class DeleteAllServiceTests {
     @Test
     void createGameServiceSuccess() throws DataAccessException {
         // create new databases and initialize GameService
-        GameDAO gameDAO = new GameDAOMemory();
-        UserDAO userDAO = new UserDAOMemory();
-        AuthDAO authDAO = new AuthDAOMemory();
+        GameDAO gameDAO = new GameDAODatabase();
+        UserDAO userDAO = new UserDAODatabase();
+        AuthDAO authDAO = new AuthDAODatabase();
         DeleteService deleteService = new DeleteService(userDAO, authDAO, gameDAO);
 
         // add 4 items to each database

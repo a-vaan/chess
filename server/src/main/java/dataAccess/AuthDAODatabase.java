@@ -3,15 +3,13 @@ package dataAccess;
 import dataAccess.DAOInterfaces.AuthDAO;
 import model.AuthData;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class AuthDAODatabase implements AuthDAO {
 
+    private final DAODatabaseFunctions daoFunctions = new DAODatabaseFunctions();
+
     public AuthDAODatabase() throws DataAccessException {
-        DAODatabaseFunctions daoFunctions = new DAODatabaseFunctions();
         String[] createStatements = {
                 """
             CREATE TABLE IF NOT EXISTS  auth (
@@ -29,7 +27,7 @@ public class AuthDAODatabase implements AuthDAO {
         try {
             var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
             String authToken = UUID.randomUUID().toString();
-            executeUpdate(statement, authToken, username);
+            daoFunctions.executeUpdate(statement, authToken, username);
             return authToken;
         } catch (Exception e) {
             throw new DataAccessException(e.toString());
@@ -57,47 +55,12 @@ public class AuthDAODatabase implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) {
         var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, authToken);
+        daoFunctions.executeUpdate(statement, authToken);
     }
 
     @Override
     public void deleteAllAuths() {
         var statement = "TRUNCATE auth";
-        executeUpdate(statement);
+        daoFunctions.executeUpdate(statement);
     }
-
-    private int executeUpdate(String statement, Object... params) {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //    private void configureDatabase() throws DataAccessException {
-//        DatabaseManager.createDatabase();
-//        try (var conn = DatabaseManager.getConnection()) {
-//            for (var statement : createStatements) {
-//                try (var preparedStatement = conn.prepareStatement(statement)) {
-//                    preparedStatement.executeUpdate();
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 }

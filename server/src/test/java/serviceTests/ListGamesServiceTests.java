@@ -17,8 +17,8 @@ public class ListGamesServiceTests {
     @Test
     void listGamesServiceSuccess() throws DataAccessException {
         // create new databases and initialize GameService
-        GameDAO listGameDAO = new GameDAOMemory();
-        AuthDAO listAuthDAO = new AuthDAOMemory();
+        GameDAO listGameDAO = new GameDAODatabase();
+        AuthDAO listAuthDAO = new AuthDAODatabase();
         GameService listGameService = new GameService(listGameDAO, listAuthDAO);
 
         // create an authToken, save the username to the database, and add 4 games to the database
@@ -33,8 +33,9 @@ public class ListGamesServiceTests {
         var res = listGameService.listGames(req);
         Assertions.assertEquals(4, res.games().size());
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         listGameDAO.deleteAllGames();
+        listAuthDAO.deleteAllAuths();
     }
 
     @Test
@@ -51,7 +52,8 @@ public class ListGamesServiceTests {
         ListGamesRequest req = new ListGamesRequest(UUID.randomUUID().toString());
         Assertions.assertThrows(DataAccessException.class, () -> listGameService.listGames(req));
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         listGameErrorDAO.deleteAllGames();
+        listAuthErrorDAO.deleteAllAuths();
     }
 }

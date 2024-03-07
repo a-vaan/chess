@@ -3,8 +3,6 @@ package serviceTests;
 import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.GameDAOMemory;
 import model.GameData;
 import model.request.JoinGameRequest;
 import org.junit.jupiter.api.Assertions;
@@ -18,8 +16,8 @@ public class JoinGameServiceTests {
     @Test
     void joinGameServiceSuccess() throws DataAccessException {
         // create new databases and initialize GameService
-        GameDAO joinGameDAO = new GameDAOMemory();
-        AuthDAO joinAuthDAO = new AuthDAOMemory();
+        GameDAO joinGameDAO = new GameDAODatabase();
+        AuthDAO joinAuthDAO = new AuthDAODatabase();
         GameService gameService = new GameService(joinGameDAO, joinAuthDAO);
 
         // create an authToken, save the username to the database, and add the game to the database
@@ -32,15 +30,16 @@ public class JoinGameServiceTests {
         Assertions.assertEquals(new GameData(gameID, "TestUsername", null,
                 "TestGame", joinGameDAO.getGame(gameID).game()), joinGameDAO.getGame(gameID));
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         joinGameDAO.deleteAllGames();
+        joinAuthDAO.deleteAllAuths();
     }
 
     @Test
     void joinGameServiceErrors() throws DataAccessException {
         // create new databases and initialize GameService
-        GameDAO joinGameErrorDAO = new GameDAOMemory();
-        AuthDAO joinAuthErrorDAO = new AuthDAOMemory();
+        GameDAO joinGameErrorDAO = new GameDAODatabase();
+        AuthDAO joinAuthErrorDAO = new AuthDAODatabase();
         GameService gameService = new GameService(joinGameErrorDAO, joinAuthErrorDAO);
 
         // create an authToken, save the username to the database, and add the game to the database
@@ -57,8 +56,9 @@ public class JoinGameServiceTests {
         JoinGameRequest newReq = new JoinGameRequest("WHITE", random.nextInt(10000));
         Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(newReq, authToken));
 
-        // delete all games to keep the database clear for other tests
+        // delete everything to keep the database clear for other tests
         joinGameErrorDAO.deleteAllGames();
+        joinAuthErrorDAO.deleteAllAuths();
     }
 
 }
