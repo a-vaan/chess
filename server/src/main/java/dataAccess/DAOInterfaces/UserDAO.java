@@ -21,11 +21,11 @@ public interface UserDAO {
      * @param password: desired password
      * @param email: desired email
      */
-    void createUser(String username, String password, String email);
+    void createUser(String username, String password, String email) throws DataAccessException;
 
     /**
      * Deletes all users in the database
      */
-    void deleteAllUsers();
+    void deleteAllUsers() throws DataAccessException;
 
 }

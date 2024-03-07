@@ -26,11 +26,11 @@ public interface AuthDAO {
      *
      * @param authToken: the authToken to be deleted
      */
-    void deleteAuth(String authToken);
+    void deleteAuth(String authToken) throws DataAccessException;
 
     /**
      * Deletes all authTokens and associated usernames in the database.
      */
-    void deleteAllAuths();
+    void deleteAllAuths() throws DataAccessException;
 
 }

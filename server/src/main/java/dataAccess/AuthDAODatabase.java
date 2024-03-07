@@ -53,13 +53,13 @@ public class AuthDAODatabase implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE authToken=?";
         daoFunctions.executeUpdate(statement, authToken);
     }
 
     @Override
-    public void deleteAllAuths() {
+    public void deleteAllAuths() throws DataAccessException {
         var statement = "TRUNCATE auth";
         daoFunctions.executeUpdate(statement);
     }

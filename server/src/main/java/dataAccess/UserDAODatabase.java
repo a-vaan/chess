@@ -40,13 +40,13 @@ public class UserDAODatabase implements UserDAO {
     }
 
     @Override
-    public void createUser(String username, String password, String email) {
+    public void createUser(String username, String password, String email) throws DataAccessException {
         var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         daoFunctions.executeUpdate(statement, username, password, email);
     }
 
     @Override
-    public void deleteAllUsers() {
+    public void deleteAllUsers() throws DataAccessException {
         var statement = "TRUNCATE user";
         daoFunctions.executeUpdate(statement);
     }

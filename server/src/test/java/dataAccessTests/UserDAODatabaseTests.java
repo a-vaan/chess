@@ -22,6 +22,15 @@ public class UserDAODatabaseTests {
 
         Assertions.assertEquals(new UserData("TestUsernameCreate", "TestPasswordCreate", "TestEmailCreate"), retrievedData);
         Assertions.assertEquals(new UserData("TestUsernameCreate1", "TestPasswordCreate1", "TestEmailCreate1"), retrievedData1);
+
+        createUserDAO.deleteAllUsers();
+    }
+
+    @Test
+    void createUserFail() throws DataAccessException {
+        UserDAO createUserDAO = new UserDAODatabase();
+
+        Assertions.assertThrows(DataAccessException.class, () -> createUserDAO.createUser(null, null, null));
     }
 
     @Test
@@ -37,6 +46,15 @@ public class UserDAODatabaseTests {
 
         Assertions.assertEquals(new UserData("TestUsernameGet", "TestPasswordGet", "TestEmailGet"), retrievedData);
         Assertions.assertEquals(new UserData("TestUsernameGet1", "TestPasswordGet1", "TestEmailGet1"), retrievedData1);
+
+        getUserDAO.deleteAllUsers();
+    }
+
+    @Test
+    void getUserFail() throws DataAccessException {
+        UserDAO getUserDAO = new UserDAODatabase();
+
+        Assertions.assertNull(getUserDAO.getUser("test"));
     }
 
     @Test

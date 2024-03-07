@@ -3,6 +3,7 @@ package service;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
 import dataAccess.DAOInterfaces.UserDAO;
+import dataAccess.DataAccessException;
 
 public class DeleteService {
 
@@ -19,7 +20,7 @@ public class DeleteService {
     /**
      * Deletes all objects in all databases.
      */
-    public void deleteAll() {
+    public void deleteAll() throws DataAccessException {
         userDAO.deleteAllUsers();
         authDAO.deleteAllAuths();
         gameDAO.deleteAllGames();
