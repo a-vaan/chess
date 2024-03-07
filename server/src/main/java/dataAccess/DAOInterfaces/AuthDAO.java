@@ -19,7 +19,7 @@ public interface AuthDAO {
      * @param authToken: desired username
      * return: an AuthData object containing the authToken and username.
      */
-    AuthData getAuth(String authToken);
+    AuthData getAuth(String authToken) throws DataAccessException;
 
     /**
      * Deletes the specified authToken and username from the database.

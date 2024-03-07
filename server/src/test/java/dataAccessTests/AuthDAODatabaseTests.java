@@ -7,6 +7,8 @@ import model.AuthData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 public class AuthDAODatabaseTests {
 
     @Test
@@ -22,15 +24,15 @@ public class AuthDAODatabaseTests {
 
         Assertions.assertEquals(new AuthData(authToken, "TestUsername"), retrievedData);
         Assertions.assertEquals(new AuthData(authToken1, "TestUsername1"), retrievedData1);
+
+        createAuthDAO.deleteAllAuths();
     }
 
     @Test
     void createAuthFail() throws DataAccessException {
         AuthDAO createAuthDAO = new AuthDAODatabase();
 
-        createAuthDAO.createAuth("TestUsername");
-
-        Assertions.assertThrows(DataAccessException.class, () -> createAuthDAO.createAuth("TestUsername"));
+        Assertions.assertThrows(DataAccessException.class, () -> createAuthDAO.createAuth(null));
     }
 
     @Test
@@ -46,6 +48,15 @@ public class AuthDAODatabaseTests {
 
         Assertions.assertEquals(new AuthData(authToken, "TestUsername"), retrievedData);
         Assertions.assertEquals(new AuthData(authToken1, "TestUsername1"), retrievedData1);
+
+        getAuthDAO.deleteAllAuths();
+    }
+
+    @Test
+    void getAuthFail() throws DataAccessException {
+        AuthDAO getAuthDAO = new AuthDAODatabase();
+
+        Assertions.assertNull(getAuthDAO.getAuth(UUID.randomUUID().toString()));
     }
 
     @Test

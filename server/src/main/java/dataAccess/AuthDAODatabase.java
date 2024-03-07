@@ -35,7 +35,7 @@ public class AuthDAODatabase implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -47,7 +47,7 @@ public class AuthDAODatabase implements AuthDAO {
                 }
             }
         } catch (Exception e) {
-            System.out.println(e);
+            throw new DataAccessException(e.toString());
         }
         return null;
     }
