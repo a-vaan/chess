@@ -5,9 +5,9 @@ import dataAccess.*;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
 import dataAccess.DAOInterfaces.UserDAO;
-import dataAccess.MemoryDAOs.AuthDAOMemory;
-import dataAccess.MemoryDAOs.GameDAOMemory;
-import dataAccess.MemoryDAOs.UserDAOMemory;
+//import dataAccess.MemoryDAOs.AuthDAOMemory;
+//import dataAccess.MemoryDAOs.GameDAOMemory;
+//import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.*;
 import model.result.ErrorMessage;
 import service.DeleteService;
@@ -24,9 +24,13 @@ public class Server {
     private GameDAO gameDAO;
 
     public int run(int desiredPort) {
-        userDAO = new UserDAOMemory();
-        authDAO = new AuthDAOMemory();
-        gameDAO = new GameDAOMemory();
+        try {
+            userDAO = new UserDAODatabase();
+            authDAO = new AuthDAODatabase();
+            gameDAO = new GameDAODatabase();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
 
         Spark.port(desiredPort);
 

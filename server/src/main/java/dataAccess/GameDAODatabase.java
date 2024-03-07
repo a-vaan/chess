@@ -28,8 +28,20 @@ public class GameDAODatabase implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData game) {
-
+    public void updateGame(GameData game) throws DataAccessException {
+        int gameID = game.gameID();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE game SET whiteUserName = ?, blackUserName = ?, gameName = ?, gameData = ? WHERE gameID=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                ps.setString(2, game.whiteUsername());
+                ps.setString(3, game.blackUsername());
+                ps.setString(2, new Gson().toJson(game.game()));
+                ps.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.toString());
+        }
     }
 
     @Override

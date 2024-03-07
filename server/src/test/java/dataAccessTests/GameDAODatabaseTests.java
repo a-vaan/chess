@@ -1,5 +1,6 @@
 package dataAccessTests;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import dataAccess.DAOInterfaces.GameDAO;
 import dataAccess.DataAccessException;
@@ -25,16 +26,44 @@ public class GameDAODatabaseTests {
         GameData newGameData = new GameData(gameID, null, null, "TestGameCreate", new ChessGame());
         GameData newGameData1 = new GameData(gameID1, null, null, "TestGameCreate1", new ChessGame());
 
-        if(newGameData.game().equals(retrievedData.game())){
-            System.out.println("potatoes");
-        }
+        Assertions.assertEquals(newGameData, retrievedData);
+        Assertions.assertEquals(newGameData1, retrievedData1);
+    }
 
-        ChessGame databaseGame = retrievedData.game();
-        ChessGame newGame = newGameData.game();
+    @Test
+    void getGameSuccess() throws DataAccessException {
+        GameDAO getGameDAO = new GameDAODatabase();
 
-        if(newGame.equals(databaseGame)){
-            System.out.println("potatoes");
-        }
+        int gameID = getGameDAO.createGame("TestGameGet");
+        int gameID1 = getGameDAO.createGame("TestGameGet1");
+
+        GameData retrievedData = getGameDAO.getGame(gameID);
+        GameData retrievedData1 = getGameDAO.getGame(gameID1);
+
+        GameData newGameData = new GameData(gameID, null, null, "TestGameGet", new ChessGame());
+        GameData newGameData1 = new GameData(gameID1, null, null, "TestGameGet1", new ChessGame());
+
+        Assertions.assertEquals(newGameData, retrievedData);
+        Assertions.assertEquals(newGameData1, retrievedData1);
+    }
+
+    @Test
+    void updateGameSuccess() throws DataAccessException {
+        GameDAO updateGameDAO = new GameDAODatabase();
+
+        int gameID = updateGameDAO.createGame("TestGameUpdate");
+        int gameID1 = updateGameDAO.createGame("TestGameUpdate1");
+
+        GameData retrievedData = updateGameDAO.getGame(gameID);
+        GameData retrievedData1 = updateGameDAO.getGame(gameID1);
+
+        ChessGame newChessGame = new ChessGame();
+        newChessGame.setBoard(new ChessBoard());
+
+        updateGameDAO.updateGame(new GameData(gameID, null, null, "TestGameUpdate", newChessGame));
+
+        GameData newGameData = new GameData(gameID, null, null, "TestGameUpdate", newChessGame);
+        GameData newGameData1 = new GameData(gameID1, null, null, "TestGameUpdate1", new ChessGame());
 
         Assertions.assertEquals(newGameData, retrievedData);
         Assertions.assertEquals(newGameData1, retrievedData1);
@@ -45,14 +74,25 @@ public class GameDAODatabaseTests {
         GameDAO listGamesDAO = new GameDAODatabase();
         listGamesDAO.deleteAllGames();
 
-        int gameID = listGamesDAO.createGame("TestGameList");
-        int gameID1 = listGamesDAO.createGame("TestGameList1");
-        int gameID2 = listGamesDAO.createGame("TestGameList2");
+        listGamesDAO.createGame("TestGameList");
+        listGamesDAO.createGame("TestGameList1");
+        listGamesDAO.createGame("TestGameList2");
 
         Collection<GameData> gameList = listGamesDAO.listGames();
 
         Assertions.assertEquals(3, gameList.size());
     }
 
+    @Test
+    void deleteAllGamesSuccess() throws DataAccessException {
+        GameDAO deleteAllGamesDAO = new GameDAODatabase();
 
+        int gameID = deleteAllGamesDAO.createGame("TestGameDeleteAll");
+        int gameID1 = deleteAllGamesDAO.createGame("TestGameDeleteAll1");
+
+        deleteAllGamesDAO.deleteAllGames();
+
+        Assertions.assertNull(deleteAllGamesDAO.getGame(gameID));
+        Assertions.assertNull(deleteAllGamesDAO.getGame(gameID1));
+    }
 }

@@ -20,7 +20,7 @@ public interface GameDAO {
      *
      * @param game: a GameData object containing the new information to be saved
      */
-    void updateGame(GameData game);
+    void updateGame(GameData game) throws DataAccessException;
 
     /**
      * Returns the GameData object from the database based on the gameID provided.
