@@ -13,7 +13,7 @@ public interface GameDAO {
      * @param gameName: desired name of the game to be created
      * return: the gameID in the form of an integer
      */
-    Integer createGame(String gameName);
+    Integer createGame(String gameName) throws DataAccessException;
 
     /**
      * Replaces the GameData at the current gameID with the provided GameData

@@ -28,6 +28,15 @@ public class GameDAODatabaseTests {
 
         Assertions.assertEquals(newGameData, retrievedData);
         Assertions.assertEquals(newGameData1, retrievedData1);
+
+        createGameDAO.deleteAllGames();
+    }
+
+    @Test
+    void createGameFail() throws DataAccessException {
+        GameDAO createGameDAO = new GameDAODatabase();
+
+        Assertions.assertThrows(DataAccessException.class, () -> createGameDAO.createGame(null));
     }
 
     @Test
@@ -45,6 +54,15 @@ public class GameDAODatabaseTests {
 
         Assertions.assertEquals(newGameData, retrievedData);
         Assertions.assertEquals(newGameData1, retrievedData1);
+
+        getGameDAO.deleteAllGames();
+    }
+
+    @Test
+    void getGameFail() throws DataAccessException {
+        GameDAO getGameDAO = new GameDAODatabase();
+
+        Assertions.assertNull(getGameDAO.getGame(12345));
     }
 
     @Test
@@ -67,12 +85,22 @@ public class GameDAODatabaseTests {
 
         Assertions.assertEquals(newGameData, retrievedData);
         Assertions.assertEquals(newGameData1, retrievedData1);
+
+        updateGameDAO.deleteAllGames();
+    }
+
+    @Test
+    void updateGameFail() throws DataAccessException {
+        GameDAO updateGameDAO = new GameDAODatabase();
+
+        updateGameDAO.updateGame(new GameData(12345, null, null, "game", new ChessGame()));
+
+        Assertions.assertNull(updateGameDAO.getGame(12345));
     }
 
     @Test
     void listGamesSuccess() throws DataAccessException {
         GameDAO listGamesDAO = new GameDAODatabase();
-        listGamesDAO.deleteAllGames();
 
         listGamesDAO.createGame("TestGameList");
         listGamesDAO.createGame("TestGameList1");
@@ -81,6 +109,15 @@ public class GameDAODatabaseTests {
         Collection<GameData> gameList = listGamesDAO.listGames();
 
         Assertions.assertEquals(3, gameList.size());
+
+        listGamesDAO.deleteAllGames();
+    }
+
+    @Test
+    void listGamesFail() throws DataAccessException {
+        GameDAO listGamesDAO = new GameDAODatabase();
+
+        Assertions.assertEquals(0, listGamesDAO.listGames().size());
     }
 
     @Test

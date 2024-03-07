@@ -33,11 +33,15 @@ public class GameDAODatabase implements GameDAO {
     }
 
     @Override
-    public Integer createGame(String gameName) {
-        var statement = "INSERT INTO game (whiteUserName, blackUserName, gameName, gameData) VALUES (?, ?, ?, ?)";
-        ChessGame newChess = new ChessGame();
-        var json = new Gson().toJson(newChess);
-        return executeUpdate(statement, null, null, gameName, json);
+    public Integer createGame(String gameName) throws DataAccessException {
+        try {
+            var statement = "INSERT INTO game (whiteUserName, blackUserName, gameName, gameData) VALUES (?, ?, ?, ?)";
+            ChessGame newChess = new ChessGame();
+            var json = new Gson().toJson(newChess);
+            return executeUpdate(statement, null, null, gameName, json);
+        } catch (Exception e) {
+        throw new DataAccessException(e.toString());
+        }
     }
 
     @Override
