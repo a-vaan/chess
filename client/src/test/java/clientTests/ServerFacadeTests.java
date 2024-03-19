@@ -1,5 +1,6 @@
 package clientTests;
 
+import model.result.CreateGameResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 import org.junit.jupiter.api.*;
@@ -47,6 +48,14 @@ public class ServerFacadeTests {
         facade.logout(registerData.authToken());
         LoginResult loginData = facade.login("playerLogout", "passwordLogout");
         Assertions.assertNotEquals(registerData.authToken(), loginData.authToken());
+        facade.delete();
+    }
+
+    @Test
+    void createGameSuccess() throws Exception {
+        RegisterResult registerData = facade.register("playerCreateGame", "passwordCreateGame", "pCG@email.com");
+        CreateGameResult createGameData = facade.createGame("createGame", registerData.authToken());
+        Assertions.assertTrue(createGameData.gameID() > 0);
         facade.delete();
     }
 

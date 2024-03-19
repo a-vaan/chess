@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import model.result.CreateGameResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 
@@ -77,6 +78,28 @@ public class ServerFacade {
         }
     }
 
+    public CreateGameResult createGame(String gameName, String authToken) throws ResponseException {
+        try {
+            URL url = (new URI(serverUrl + "/game")).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+
+            http.addRequestProperty("Content-Type", "application/json");
+            http.addRequestProperty("authorization", authToken);
+            var body = Map.of("gameName", gameName);
+            try (var outputStream = http.getOutputStream()) {
+                var jsonBody = new Gson().toJson(body);
+                outputStream.write(jsonBody.getBytes());
+            }
+            http.connect();
+            throwIfNotSuccessful(http);
+            return readBody(http, CreateGameResult.class);
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
     public void delete() throws ResponseException {
         try {
             URL url = (new URI(serverUrl + "/db")).toURL();
@@ -92,16 +115,6 @@ public class ServerFacade {
         }
     }
 
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        this.makeRequest("DELETE", path, null, null);
-    }
-
-    public void deleteAllPets() throws ResponseException {
-        var path = "/pet";
-        this.makeRequest("DELETE", path, null, null);
-    }
-
 //    public Pet[] listPets() throws server.ResponseException {
 //        var path = "/pet";
 //        record listPetResponse(Pet[] pet) {
@@ -109,33 +122,6 @@ public class ServerFacade {
 //        var response = this.makeRequest("GET", path, null, listPetResponse.class);
 //        return response.pet();
 //    }
-
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-
-            writeBody(request, http);
-            http.connect();
-            throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-
-    private static void writeBody(Object request, HttpURLConnection http) throws IOException {
-        if (request != null) {
-            http.addRequestProperty("Content-Type", "application/json");
-            String reqData = new Gson().toJson(request);
-            try (OutputStream reqBody = http.getOutputStream()) {
-                reqBody.write(reqData.getBytes());
-            }
-        }
-    }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
