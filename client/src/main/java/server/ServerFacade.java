@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import model.result.CreateGameResult;
+import model.result.ListGamesResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 
@@ -117,6 +118,23 @@ public class ServerFacade {
             }
             http.connect();
             throwIfNotSuccessful(http);
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public ListGamesResult listGames(String authToken) throws ResponseException {
+        try {
+            URL url = (new URI(serverUrl + "/game")).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("GET");
+            http.setDoOutput(true);
+
+            http.addRequestProperty("Content-Type", "application/json");
+            http.addRequestProperty("authorization", authToken);
+            http.connect();
+            throwIfNotSuccessful(http);
+            return readBody(http, ListGamesResult.class);
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
