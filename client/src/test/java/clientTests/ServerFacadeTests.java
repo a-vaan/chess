@@ -60,6 +60,16 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void joinGameSuccess() throws Exception {
+        RegisterResult registerData = facade.register("playerJoinGame", "passwordJoinGame", "pJG@email.com");
+        CreateGameResult createGameData = facade.createGame("joinGame", registerData.authToken());
+        facade.joinGame(registerData.authToken(), "WHITE", createGameData.gameID());
+        RegisterResult registerData1 = facade.register("playerJoinGame1", "passwordJoinGame1", "pJG1@email.com");
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(registerData1.authToken(), "WHITE", createGameData.gameID()));
+        facade.delete();
+    }
+
+    @Test
     void deleteSuccess() throws Exception {
         facade.register("playerDelete1", "passwordDelete1", "pD1@email.com");
         facade.delete();
