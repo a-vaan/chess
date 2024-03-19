@@ -1,6 +1,6 @@
 package clientTests;
 
-import dataAccess.DataAccessException;
+import model.result.LoginResult;
 import model.result.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
@@ -45,7 +45,8 @@ public class ServerFacadeTests {
     void logoutSuccess() throws Exception {
         RegisterResult registerData = facade.register("playerLogout", "passwordLogout", "pLO@email.com");
         facade.logout(registerData.authToken());
-        Assertions.assertThrows(DataAccessException.class, () -> facade.login("playerLogout", "passwordLogout"));
+        LoginResult loginData = facade.login("playerLogout", "passwordLogout");
+        Assertions.assertNotEquals(registerData.authToken(), loginData.authToken());
         facade.delete();
     }
 
