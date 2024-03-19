@@ -1,6 +1,9 @@
 package clientTests;
 
+import dataAccess.DataAccessException;
+import model.result.RegisterResult;
 import org.junit.jupiter.api.*;
+import server.ResponseException;
 import server.Server;
 import server.ServerFacade;
 
@@ -27,6 +30,7 @@ public class ServerFacadeTests {
     void registerSuccess() throws Exception {
         var authData = facade.register("playerRegister", "passwordRegister", "pR@email.com");
         Assertions.assertTrue(authData.authToken().length() > 10);
+        facade.delete();
     }
 
     @Test
@@ -34,6 +38,22 @@ public class ServerFacadeTests {
         facade.register("playerLogin", "passwordLogin", "pL@email.com");
         var loginData = facade.login("playerLogin", "passwordLogin");
         Assertions.assertTrue(loginData.authToken().length() > 10);
+        facade.delete();
+    }
+
+    @Test
+    void logoutSuccess() throws Exception {
+        RegisterResult registerData = facade.register("playerLogout", "passwordLogout", "pLO@email.com");
+        facade.logout(registerData.authToken());
+        Assertions.assertThrows(DataAccessException.class, () -> facade.login("playerLogout", "passwordLogout"));
+        facade.delete();
+    }
+
+    @Test
+    void deleteSuccess() throws Exception {
+        facade.register("playerDelete1", "passwordDelete1", "pD1@email.com");
+        facade.delete();
+        Assertions.assertThrows(ResponseException.class, () -> facade.login("playerDelete1", "passwordDelete1"));
     }
 
 }

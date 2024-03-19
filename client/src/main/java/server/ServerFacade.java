@@ -61,6 +61,37 @@ public class ServerFacade {
         }
     }
 
+    public void logout(String authToken) throws ResponseException {
+        try {
+            URL url = (new URI(serverUrl + "/session")).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("DELETE");
+            http.setDoOutput(true);
+
+            http.addRequestProperty("Content-Type", "application/json");
+            http.addRequestProperty("authorization", authToken);
+            http.connect();
+            throwIfNotSuccessful(http);
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void delete() throws ResponseException {
+        try {
+            URL url = (new URI(serverUrl + "/db")).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("DELETE");
+            http.setDoOutput(true);
+
+            http.addRequestProperty("Content-Type", "application/json");
+            http.connect();
+            throwIfNotSuccessful(http);
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
     public void deletePet(int id) throws ResponseException {
         var path = String.format("/pet/%s", id);
         this.makeRequest("DELETE", path, null, null);
