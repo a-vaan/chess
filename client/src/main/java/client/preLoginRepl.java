@@ -13,7 +13,7 @@ public class preLoginRepl {
     }
 
     public void run() {
-        System.out.println("♕ Welcome to chess. Sign in to start. ♕");
+        System.out.println("♕ Welcome to chess! Type 'Help' to get started. ♕");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -34,7 +34,6 @@ public class preLoginRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + "[LOGGED OUT]>>> " + SET_TEXT_COLOR_GREEN);
     }
-
 }
