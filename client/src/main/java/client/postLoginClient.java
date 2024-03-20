@@ -1,18 +1,23 @@
 package client;
 
+import model.GameData;
+import model.result.ListGamesResult;
 import server.ResponseException;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class postLoginClient {
 
     private final ServerFacade server;
     private final String authToken;
+    private final HashMap<Integer, GameData> gameList;
 
     public postLoginClient(String serverUrl, String auth) {
         server = new ServerFacade(serverUrl);
         authToken = auth;
+        gameList = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -22,7 +27,7 @@ public class postLoginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "create" -> createGame(params);
-                case "list" -> listGames(params);
+                case "list" -> listGames();
 //                case "join" -> joinGame(params);
 //                case "observe" -> observeGame(params);
 //                case "logout" -> logout(params);
@@ -42,12 +47,17 @@ public class postLoginClient {
         throw new ResponseException(400, "Expected: <GAME NAME>");
     }
 
-    public String listGames(String... params) throws ResponseException {
-        if (params.length == 1) {
-            server.createGame(params[0], authToken);
-            return String.format("Chess game %s created.", params[0]);
+    public String listGames() throws ResponseException {
+        ListGamesResult listedGames = server.listGames(authToken);
+        String response = "";
+        int i = 0;
+        var games = listedGames.games();
+        for(GameData game: games) {
+            response += i + ": " + game.gameName() + "\n";
+            i++;
+            gameList.put(i, game);
         }
-        throw new ResponseException(400, "Expected: <GAME NAME>");
+        return response;
     }
 
     public void logout() throws ResponseException {
