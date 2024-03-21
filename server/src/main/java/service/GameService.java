@@ -68,18 +68,20 @@ public class GameService {
         }
 
         AuthData auth = authDAO.getAuth(authToken);
-        if(req.playerColor().equals("WHITE")) {
+        if(req.playerColor().equals("white")) {
             if(game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
             } else {
                 throw new DataAccessException("Already taken");
             }
-        } else {
+        } else if(req.playerColor().equals("black")){
             if(game.blackUsername() == null) {
                 game = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
             } else {
                 throw new DataAccessException("Already taken");
             }
+        } else {
+            System.out.println("Null being thrown");
         }
 
         gameDAO.updateGame(game);

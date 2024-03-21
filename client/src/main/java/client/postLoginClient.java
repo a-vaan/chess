@@ -28,9 +28,8 @@ public class postLoginClient {
             return switch (cmd) {
                 case "create" -> createGame(params);
                 case "list" -> listGames();
-//                case "join" -> joinGame(params);
+                case "join" -> joinGame(params);
 //                case "observe" -> observeGame(params);
-//                case "logout" -> logout(params);
                 case "logout" -> "logout";
                 default -> help();
             };
@@ -48,16 +47,27 @@ public class postLoginClient {
     }
 
     public String listGames() throws ResponseException {
+        gameList.clear();
         ListGamesResult listedGames = server.listGames(authToken);
         String response = "";
         int i = 0;
         var games = listedGames.games();
         for(GameData game: games) {
             response += i + ": " + game.gameName() + "\n";
-            i++;
             gameList.put(i, game);
+            i++;
         }
         return response;
+    }
+
+    public String joinGame(String... params) throws ResponseException {
+        if (params.length == 2) {
+            GameData game = gameList.get(Integer.parseInt(params[0]));
+            server.joinGame(authToken, params[1], game.gameID());
+            System.out.println(params[1]);
+            return String.format("Chess game %s joined.", params[0]);
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
     }
 
     public void logout() throws ResponseException {
