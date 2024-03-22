@@ -12,8 +12,6 @@ import model.result.LoginResult;
 import model.result.RegisterResult;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Objects;
-
 public class UserService {
 
     private final UserDAO userDAO;
@@ -84,6 +82,8 @@ public class UserService {
      */
     public void logout(LogoutRequest req) throws DataAccessException {
         AuthData authData = authDAO.getAuth(req.authToken());
+
+        System.out.println(req);
 
         if(authData == null) {
             throw new DataAccessException("Unauthorized");

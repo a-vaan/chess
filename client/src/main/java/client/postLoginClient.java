@@ -70,7 +70,8 @@ public class postLoginClient {
             }
             GameplayClient gameClient = new GameplayClient(game);
             System.out.println(gameClient.displayWhiteGame());
-            return String.format("Chess game %s exited.", params[0]);
+            System.out.println(gameClient.displayBlackGame());
+            return String.format("Chess game %s exited.\n", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
     }
