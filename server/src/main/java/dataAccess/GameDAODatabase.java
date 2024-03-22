@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DAOInterfaces.GameDAO;
@@ -37,6 +38,9 @@ public class GameDAODatabase implements GameDAO {
         try {
             var statement = "INSERT INTO game (whiteUserName, blackUserName, gameName, gameData) VALUES (?, ?, ?, ?)";
             ChessGame newChess = new ChessGame();
+            ChessBoard chessBoard = new ChessBoard();
+            chessBoard.resetBoard();
+            newChess.setBoard(chessBoard);
             var json = new Gson().toJson(newChess);
             return executeUpdate(statement, null, null, gameName, json);
         } catch (Exception e) {

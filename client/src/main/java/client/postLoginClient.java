@@ -63,8 +63,14 @@ public class postLoginClient {
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
             GameData game = gameList.get(Integer.parseInt(params[0]));
-            server.joinGame(authToken, params[1], game.gameID());
-            return String.format("Chess game %s joined.", params[0]);
+            try {
+                server.joinGame(authToken, params[1], game.gameID());
+            } catch (NullPointerException e) {
+                return "Game does not exist. Please try again.\n";
+            }
+            GameplayClient gameClient = new GameplayClient(game);
+            System.out.println(gameClient.displayWhiteGame());
+            return String.format("Chess game %s exited.", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
     }
@@ -72,8 +78,15 @@ public class postLoginClient {
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
             GameData game = gameList.get(Integer.parseInt(params[0]));
-            server.joinGame(authToken, "null", game.gameID());
-            return String.format("Chess game %s is being observed.\n", params[0]);
+            try {
+                server.joinGame(authToken, "null", game.gameID());
+            } catch (NullPointerException e) {
+                return "Game does not exist. Please try again.\n";
+            }
+            GameplayClient gameClient = new GameplayClient(game);
+            System.out.println(gameClient.displayWhiteGame());
+            System.out.println(gameClient.displayBlackGame());
+            return String.format("Chess game %s is done being observed.\n", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
     }

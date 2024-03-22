@@ -1,21 +1,22 @@
 package client;
 
+import model.GameData;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class preLoginRepl {
+public class GameplayRepl {
 
-    private final preLoginClient client;
+    private final GameData game;
+    private final GameplayClient client;
 
-    public preLoginRepl(String serverUrl) {
-        client = new preLoginClient(serverUrl);
+    public GameplayRepl(GameData gameToDisplay) {
+        game = gameToDisplay;
+        client = new GameplayClient(game);
     }
 
     public void run() {
-        System.out.println(RESET_BG_COLOR + "♕ Welcome to chess! Type 'Help' to get started. ♕");
-        System.out.print(client.help());
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
@@ -23,7 +24,7 @@ public class preLoginRepl {
             String line = scanner.nextLine();
 
             try {
-                result = client.eval(line);
+                // result = client.eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
