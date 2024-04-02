@@ -45,7 +45,11 @@ public class preLoginClient {
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             LoginResult loginData = server.login(params[0], params[1]);
-            new postLoginRepl(serverURL, loginData.authToken()).run(params[0]);
+            try {
+                new postLoginRepl(serverURL, loginData.authToken()).run(params[0]);
+            } catch (Exception e) {
+                return "Player does not exist. Please try again.\n";
+            }
             return "You have been logged out.\n";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
