@@ -18,14 +18,16 @@ public class WebSocketHandler {
     public void onConnect(Session session) {}
 
     @OnWebSocketClose
-    public void onClose(Session session) {}
+    public void onClose(Session session) {
+        sessions.removeSession(session);
+    }
 
     @OnWebSocketError
     public void onError(Throwable e) {}
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        Action action = new Gson().fromJson(message, Action.class);
+
         switch (action.type()) {
             case ENTER -> enter(action.visitorName(), session);
             case EXIT -> exit(action.visitorName());
