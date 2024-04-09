@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import exception.ResponseException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -27,7 +28,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-
+        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (action.type()) {
             case ENTER -> enter(action.visitorName(), session);
             case EXIT -> exit(action.visitorName());
