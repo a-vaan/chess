@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DAOInterfaces.GameDAO;
@@ -10,6 +11,9 @@ import model.request.JoinGameRequest;
 import model.request.ListGamesRequest;
 import model.result.CreateGameResult;
 import model.result.ListGamesResult;
+import webSocketMessages.userCommands.JoinPlayer;
+
+import java.util.Objects;
 
 public class GameService {
 
@@ -68,13 +72,13 @@ public class GameService {
         }
 
         AuthData auth = authDAO.getAuth(authToken);
-        if(req.playerColor().equals("white")) {
+        if(req.playerColor().equals("white") || req.playerColor().equals("WHITE")) {
             if(game.whiteUsername() == null) {
                 game = new GameData(game.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
             } else {
                 throw new DataAccessException("Already taken");
             }
-        } else if(req.playerColor().equals("black")){
+        } else if(req.playerColor().equals("black") || req.playerColor().equals("BLACK")){
             if(game.blackUsername() == null) {
                 game = new GameData(game.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
             } else {
@@ -102,5 +106,39 @@ public class GameService {
         }
 
         return new ListGamesResult(gameDAO.listGames());
+    }
+
+    public String joinPlayer(JoinPlayer playerData) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(playerData.getAuthString());
+        GameData gameData = gameDAO.getGame(playerData.getGameID());
+
+        if(authData == null) {
+            return "Error: bad auth token";
+        }
+
+        if(gameData == null) {
+            return "Error: incorrect gameID";
+        }
+
+        if((playerData.getPlayerColor() == ChessGame.TeamColor.WHITE
+                && gameData.whiteUsername() == null ||
+                (playerData.getPlayerColor() == ChessGame.TeamColor.BLACK
+                        && gameData.blackUsername() == null))) {
+            return "Error: game empty";
+        }
+
+//        if((gameData.whiteUsername() == null || !Objects.equals(authData.username(), gameData.whiteUsername()))
+//                && (gameData.blackUsername() == null || !Objects.equals(authData.username(), gameData.blackUsername()))) {
+//            return "Error: spot already taken";
+//        }
+
+        if((playerData.getPlayerColor() == ChessGame.TeamColor.WHITE
+                && Objects.equals(authData.username(), gameData.blackUsername())) ||
+                (playerData.getPlayerColor() == ChessGame.TeamColor.BLACK
+                && Objects.equals(authData.username(), gameData.whiteUsername()))) {
+            return "Error: spot already taken";
+        }
+
+        return "";
     }
 }

@@ -3,6 +3,7 @@ package client.websocket;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import server.ResponseException;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -41,7 +42,8 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
                                 throw new RuntimeException(e);
                             }
                         }
-                        case NOTIFICATION, ERROR -> gameHandler.printMessage(new Gson().fromJson(m, Notification.class).getMessage());
+                        case NOTIFICATION -> gameHandler.printMessage(new Gson().fromJson(m, Notification.class).getMessage());
+                        case ERROR -> gameHandler.printMessage(new Gson().fromJson(m, Error.class).getErrorMessage());
                     }
                 }
             });
@@ -50,9 +52,9 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
         }
     }
 
-    public void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+    public void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor playerColor, String playerName) throws ResponseException {
         try {
-            var command = new JoinPlayer(authToken, gameID, playerColor);
+            var command = new JoinPlayer(authToken, gameID, playerColor, playerName);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

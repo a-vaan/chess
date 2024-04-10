@@ -33,7 +33,7 @@ public class Server {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-        WebSocketHandler webSocketHandler = new WebSocketHandler(new WebSocketSessions());
+        WebSocketHandler webSocketHandler = new WebSocketHandler(new WebSocketSessions(), new GameService(gameDAO, authDAO));
 
         Spark.port(desiredPort);
 

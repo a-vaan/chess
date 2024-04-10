@@ -33,9 +33,9 @@ public class GameplayClient implements GameHandler {
         username = user;
         ws = new WebSocketFacade(serverURL, this);
         if(Objects.equals(gameData.blackUsername(), username)) {
-            ws.joinPlayer(authToken, gameData.gameID(), BLACK);
+            ws.joinPlayer(authToken, gameData.gameID(), BLACK, username);
         } else if(Objects.equals(gameData.whiteUsername(), username)) {
-            ws.joinPlayer(authToken, gameData.gameID(), WHITE);
+            ws.joinPlayer(authToken, gameData.gameID(), WHITE, username);
         }
     }
 
@@ -183,11 +183,13 @@ public class GameplayClient implements GameHandler {
     public void updateGame(LoadGame loadGame) throws ResponseException {
         if(loadGame.getGame() == gameData.gameID()) {
             System.out.println(redraw());
+            System.out.print("\n" + SET_TEXT_COLOR_YELLOW + "[GAMEPLAY]>>> " + SET_TEXT_COLOR_GREEN);
         }
     }
 
     @Override
     public void printMessage(String message) {
-        System.out.println(message);
+        System.out.println(SET_TEXT_COLOR_RED + message);
+        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + "[GAMEPLAY]>>> " + SET_TEXT_COLOR_GREEN);
     }
 }
