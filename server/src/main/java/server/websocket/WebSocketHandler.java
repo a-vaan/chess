@@ -40,7 +40,7 @@ public class WebSocketHandler {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(message, JoinPlayer.class), session);
-            // case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
+            case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
         }
     }
 
@@ -63,12 +63,18 @@ public class WebSocketHandler {
         broadcastMessage(playerData.getGameID(), notification, playerData.getAuthString());
     }
 
-//    private void joinObserver(JoinObserver playerData) throws IOException {
-//        connections.remove(visitorName);
-//        var message = String.format("%s left the shop", visitorName);
-//        var notification = new Notification(Notification.Type.DEPARTURE, message);
-//        connections.broadcast(visitorName, notification);
-//    }
+    private void joinObserver(JoinObserver playerData, Session session) throws IOException, DataAccessException {
+        String response = gameService.joinObserver(playerData);
+        if (response.contains("Error")) {
+            sendMessage(new Error(response), session);
+            return;
+        }
+        sessions.addSessionToGame(playerData.getGameID(), playerData.getAuthString(), session);
+        sendMessage(new LoadGame(playerData.getGameID()), session);
+        var message = String.format("%s joined as an observer", response);
+        var notification = new Notification(message);
+        broadcastMessage(playerData.getGameID(), notification, playerData.getAuthString());
+    }
 
     private void sendMessage(ServerMessage message, Session session) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));

@@ -11,6 +11,7 @@ import model.request.JoinGameRequest;
 import model.request.ListGamesRequest;
 import model.result.CreateGameResult;
 import model.result.ListGamesResult;
+import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 
 import java.util.Objects;
@@ -127,16 +128,26 @@ public class GameService {
             return "Error: game empty";
         }
 
-//        if((gameData.whiteUsername() == null || !Objects.equals(authData.username(), gameData.whiteUsername()))
-//                && (gameData.blackUsername() == null || !Objects.equals(authData.username(), gameData.blackUsername()))) {
-//            return "Error: spot already taken";
-//        }
-
         if((playerData.getPlayerColor() == ChessGame.TeamColor.WHITE
                 && Objects.equals(authData.username(), gameData.blackUsername())) ||
                 (playerData.getPlayerColor() == ChessGame.TeamColor.BLACK
                 && Objects.equals(authData.username(), gameData.whiteUsername()))) {
             return "Error: spot already taken";
+        }
+
+        return "";
+    }
+
+    public String joinObserver(JoinObserver playerData) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(playerData.getAuthString());
+        GameData gameData = gameDAO.getGame(playerData.getGameID());
+
+        if(authData == null) {
+            return "Error: bad auth token";
+        }
+
+        if(gameData == null) {
+            return "Error: incorrect gameID";
         }
 
         return "";
