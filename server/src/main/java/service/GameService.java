@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.DAOInterfaces.GameDAO;
@@ -13,6 +14,7 @@ import model.result.CreateGameResult;
 import model.result.ListGamesResult;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.MakeMove;
 
 import java.util.Objects;
 
@@ -150,6 +152,27 @@ public class GameService {
             return "Error: incorrect gameID";
         }
 
-        return "";
+        return authData.username();
+    }
+
+    public String makeMove(MakeMove moveData) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(moveData.getAuthString());
+        GameData gameData = gameDAO.getGame(moveData.getGameID());
+
+        ChessGame currentGame = gameData.game();
+        try {
+            currentGame.makeMove(moveData.getMove());
+            if(currentGame.getTeamTurn() == ChessGame.TeamColor.BLACK) {
+                currentGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+            } else {
+                currentGame.setTeamTurn(ChessGame.TeamColor.BLACK);
+            }
+            GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(),
+                    gameData.blackUsername(), gameData.gameName(), currentGame);
+            gameDAO.updateGame(updatedGameData);
+            return authData.username();
+        } catch (InvalidMoveException e) {
+            return "Error: invalid move";
+        }
     }
 }

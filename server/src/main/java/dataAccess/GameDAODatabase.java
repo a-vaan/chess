@@ -41,6 +41,7 @@ public class GameDAODatabase implements GameDAO {
             ChessBoard chessBoard = new ChessBoard();
             chessBoard.resetBoard();
             newChess.setBoard(chessBoard);
+            newChess.setTeamTurn(ChessGame.TeamColor.WHITE);
             var json = new Gson().toJson(newChess);
             return executeUpdate(statement, null, null, gameName, json);
         } catch (Exception e) {

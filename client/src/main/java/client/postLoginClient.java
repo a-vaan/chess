@@ -85,6 +85,9 @@ public class postLoginClient {
             GameData game = gameList.get(Integer.parseInt(params[0]));
             try {
                 server.joinGame(authToken, "null", game.gameID());
+                listGames();
+                game = gameList.get(Integer.parseInt(params[0]));
+                new GameplayRepl(serverURL, authToken, game, username).run();
             } catch (NullPointerException e) {
                 return "Game does not exist. Please try again.\n";
             }

@@ -1,9 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.websocket.GameHandler;
 import client.websocket.WebSocketFacade;
 import model.GameData;
@@ -13,6 +10,7 @@ import server.ServerFacade;
 import webSocketMessages.serverMessages.LoadGame;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.*;
@@ -24,6 +22,7 @@ public class GameplayClient implements GameHandler {
     private GameData gameData;
     private final String authToken;
     private final String username;
+    private final HashMap<String, Integer> lettersToNumbers = new HashMap<>();
     private final WebSocketFacade ws;
 
     public GameplayClient(String serverURL, String auth, GameData gameToDisplay, String user) throws ResponseException {
@@ -31,11 +30,14 @@ public class GameplayClient implements GameHandler {
         authToken = auth;
         server = new ServerFacade(serverURL);
         username = user;
+        populateLettersToNumbers();
         ws = new WebSocketFacade(serverURL, this);
         if(Objects.equals(gameData.blackUsername(), username)) {
             ws.joinPlayer(authToken, gameData.gameID(), BLACK, username);
         } else if(Objects.equals(gameData.whiteUsername(), username)) {
             ws.joinPlayer(authToken, gameData.gameID(), WHITE, username);
+        } else {
+            ws.joinObserver(authToken, gameData.gameID());
         }
     }
 
@@ -46,8 +48,8 @@ public class GameplayClient implements GameHandler {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "redraw" -> redraw();
+                case "move" -> makeMove(params);
 //                case "highlight" -> listGames();
-//                case "move" -> joinGame(params);
 //                case "resign" -> observeGame(params);
                 case "leave" -> "leave";
                 default -> help();
@@ -67,6 +69,21 @@ public class GameplayClient implements GameHandler {
             }
         }
         throw new ResponseException(404, "Game not found");
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        if(params.length == 2) {
+            String[] preMoveArray = params[0].split(",");
+            String[] postMoveArray = params[1].split(",");
+            ChessPosition startingPosition =
+                    new ChessPosition(Integer.parseInt(preMoveArray[0]), lettersToNumbers.get(preMoveArray[1]));
+            ChessPosition endingPosition =
+                    new ChessPosition(Integer.parseInt(postMoveArray[0]), lettersToNumbers.get(postMoveArray[1]));
+            ChessMove chessMove = new ChessMove(startingPosition, endingPosition, null);
+            ws.makeMove(authToken, gameData.gameID(), chessMove);
+            return "";
+        }
+        throw new ResponseException(400, "Expected: ROW,COLUMN(starting position) ROW,COLUMN(ending position)");
     }
 
     private String draw() {
@@ -171,12 +188,23 @@ public class GameplayClient implements GameHandler {
 
     public String help() {
         return """
-                    - create <GAME NAME>
-                    - list
-                    - join <ID> [WHITE | BLACK]
-                    - observe <ID>
-                    - logout
+                    - redraw
+                    - move
+                    - highlight
+                    - resign
+                    - leave
                     """;
+    }
+
+    private void populateLettersToNumbers() {
+        lettersToNumbers.put("a", 1);
+        lettersToNumbers.put("b", 2);
+        lettersToNumbers.put("c", 3);
+        lettersToNumbers.put("d", 4);
+        lettersToNumbers.put("e", 5);
+        lettersToNumbers.put("f", 6);
+        lettersToNumbers.put("g", 7);
+        lettersToNumbers.put("h", 8);
     }
 
     @Override

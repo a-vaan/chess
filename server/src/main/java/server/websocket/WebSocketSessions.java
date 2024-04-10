@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketSessions {
 
     static private final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Session>> sessionMap = new ConcurrentHashMap<>();
-    static private final ConcurrentHashMap<Integer, ConcurrentHashMap<ChessGame.TeamColor, String>> gameColorAuths = new ConcurrentHashMap<>();
 
     public void addSessionToGame(Integer gameID, String authToken, Session session) {
         ConcurrentHashMap<String, Session> existingAuthMap = sessionMap.get(gameID);
@@ -21,17 +20,6 @@ public class WebSocketSessions {
             ConcurrentHashMap<String, Session> authMap = new ConcurrentHashMap<>();
             authMap.put(authToken, session);
             sessionMap.put(gameID, authMap);
-        }
-    }
-
-    public void addPlayerColorToGame(Integer gameID, String authToken, ChessGame.TeamColor color) {
-        ConcurrentHashMap<ChessGame.TeamColor, String> existingColorMap = gameColorAuths.get(gameID);
-        if(existingColorMap != null) {
-            existingColorMap.put(color, authToken);
-        } else {
-            ConcurrentHashMap<ChessGame.TeamColor, String> authMap = new ConcurrentHashMap<>();
-            authMap.put(color, authToken);
-            gameColorAuths.put(gameID, authMap);
         }
     }
 
@@ -54,9 +42,4 @@ public class WebSocketSessions {
     public ConcurrentHashMap<String, Session> getSessionsForGame(Integer gameID) {
         return sessionMap.get(gameID);
     }
-
-    public ConcurrentHashMap<ChessGame.TeamColor, String> getPlayerColorsForGame(Integer gameID) {
-        return gameColorAuths.get(gameID);
-    }
-
 }

@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DAOInterfaces.AuthDAO;
 import dataAccess.DAOInterfaces.GameDAO;
@@ -16,6 +17,7 @@ import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
+import webSocketMessages.userCommands.MakeMove;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class WebSocketHandler {
         switch (command.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(message, JoinPlayer.class), session);
             case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
+            case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMove.class), session);
         }
     }
 
@@ -74,6 +77,20 @@ public class WebSocketHandler {
         var message = String.format("%s joined as an observer", response);
         var notification = new Notification(message);
         broadcastMessage(playerData.getGameID(), notification, playerData.getAuthString());
+    }
+
+    private void makeMove(MakeMove moveData, Session session) throws IOException, DataAccessException{
+        String response = gameService.makeMove(moveData);
+        if (response.contains("Error")) {
+            sendMessage(new Error(response), session);
+            return;
+        }
+        sendMessage(new LoadGame(moveData.getGameID()), session);
+        broadcastMessage(moveData.getGameID(), new LoadGame(moveData.getGameID()), moveData.getAuthString());
+        var message = String.format("%s moved the piece at %s to %s", response,
+                moveData.getMove().getStartPosition().toString(), moveData.getMove().getEndPosition().toString());
+        var notification = new Notification(message);
+        broadcastMessage(moveData.getGameID(), notification, moveData.getAuthString());
     }
 
     private void sendMessage(ServerMessage message, Session session) throws IOException {
