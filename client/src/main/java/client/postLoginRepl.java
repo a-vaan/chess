@@ -8,8 +8,8 @@ public class postLoginRepl {
 
     private final postLoginClient client;
 
-    public postLoginRepl(String serverUrl, String authToken) {
-        client = new postLoginClient(serverUrl, authToken);
+    public postLoginRepl(String serverUrl, String authToken, String user) {
+        client = new postLoginClient(serverUrl, authToken, user);
     }
 
     public void run(String username) {

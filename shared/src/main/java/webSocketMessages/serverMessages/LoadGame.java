@@ -4,8 +4,8 @@ public class LoadGame extends ServerMessage {
 
     private final Integer game;
 
-    public LoadGame(ServerMessageType type, Integer gameID) {
-        super(type);
+    public LoadGame(Integer gameID) {
+        super(ServerMessageType.LOAD_GAME);
         game = gameID;
     }
 

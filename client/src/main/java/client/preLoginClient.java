@@ -36,7 +36,7 @@ public class preLoginClient {
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
             RegisterResult registerData = server.register(params[0], params[1], params[2]);
-            new postLoginRepl(serverURL, registerData.authToken()).run(params[0]);
+            new postLoginRepl(serverURL, registerData.authToken(), params[0]).run(params[0]);
             return "You have been logged out.";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
@@ -46,7 +46,7 @@ public class preLoginClient {
         if (params.length == 2) {
             LoginResult loginData = server.login(params[0], params[1]);
             try {
-                new postLoginRepl(serverURL, loginData.authToken()).run(params[0]);
+                new postLoginRepl(serverURL, loginData.authToken(), params[0]).run(params[0]);
             } catch (Exception e) {
                 return "Player does not exist. Please try again.\n";
             }

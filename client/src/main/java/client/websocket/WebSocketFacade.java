@@ -1,9 +1,12 @@
 package client.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import server.ResponseException;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.JoinPlayer;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -11,17 +14,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 //need to extend Endpoint for websocket to work properly
-public class WebSocketFacade extends Endpoint {
+public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<String> {
 
     Session session;
-    NotificationHandler notificationHandler;
+    GameHandler gameHandler;
 
-
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, GameHandler gameHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
-            this.notificationHandler = notificationHandler;
+            this.gameHandler = gameHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -29,12 +31,30 @@ public class WebSocketFacade extends Endpoint {
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
-                public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                public void onMessage(String m) {
+                    ServerMessage message = new Gson().fromJson(m, ServerMessage.class);
+                    switch (message.getServerMessageType()) {
+                        case LOAD_GAME -> {
+                            try {
+                                gameHandler.updateGame(new Gson().fromJson(m, LoadGame.class));
+                            } catch (ResponseException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        case NOTIFICATION, ERROR -> gameHandler.printMessage(new Gson().fromJson(m, Notification.class).getMessage());
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor playerColor) throws ResponseException {
+        try {
+            var command = new JoinPlayer(authToken, gameID, playerColor);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
@@ -44,23 +64,9 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
-        try {
-            var action = new Action(Action.Type.ENTER, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
-        try {
-            var action = new Action(Action.Type.EXIT, visitorName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
 
+    @Override
+    public void onMessage(String s) {
+    }
 }

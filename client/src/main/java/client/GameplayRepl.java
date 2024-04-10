@@ -1,6 +1,7 @@
 package client;
 
 import model.GameData;
+import server.ResponseException;
 
 import java.util.Scanner;
 
@@ -8,23 +9,21 @@ import static ui.EscapeSequences.*;
 
 public class GameplayRepl {
 
-    private final GameData game;
     private final GameplayClient client;
 
-    public GameplayRepl(GameData gameToDisplay) {
-        game = gameToDisplay;
-        client = new GameplayClient(game);
+    public GameplayRepl(String serverURL, String auth, GameData gameToDisplay, String user) throws ResponseException {
+        client = new GameplayClient(serverURL, auth, gameToDisplay, user);
     }
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals("leave")) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
-                // result = client.eval(line);
+                result = client.eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -35,6 +34,6 @@ public class GameplayRepl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + "[LOGGED OUT]>>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + "[GAMEPLAY]>>> " + SET_TEXT_COLOR_GREEN);
     }
 }

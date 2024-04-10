@@ -11,13 +11,17 @@ import java.util.HashMap;
 public class postLoginClient {
 
     private final ServerFacade server;
+    private final String serverURL;
     private final String authToken;
     private final HashMap<Integer, GameData> gameList;
+    private final String username;
 
-    public postLoginClient(String serverUrl, String auth) {
+    public postLoginClient(String serverUrl, String auth, String user) {
         server = new ServerFacade(serverUrl);
+        serverURL = serverUrl;
         authToken = auth;
         gameList = new HashMap<>();
+        username = user;
     }
 
     public String eval(String input) {
@@ -65,12 +69,12 @@ public class postLoginClient {
             GameData game = gameList.get(Integer.parseInt(params[0]));
             try {
                 server.joinGame(authToken, params[1], game.gameID());
+                listGames();
+                game = gameList.get(Integer.parseInt(params[0]));
+                new GameplayRepl(serverURL, authToken, game, username).run();
             } catch (NullPointerException e) {
                 return "Game does not exist. Please try again.\n";
             }
-            GameplayClient gameClient = new GameplayClient(game);
-            System.out.println(gameClient.displayWhiteGame());
-            System.out.println(gameClient.displayBlackGame());
             return String.format("Chess game %s exited.\n", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
@@ -84,9 +88,6 @@ public class postLoginClient {
             } catch (NullPointerException e) {
                 return "Game does not exist. Please try again.\n";
             }
-            GameplayClient gameClient = new GameplayClient(game);
-            System.out.println(gameClient.displayWhiteGame());
-            System.out.println(gameClient.displayBlackGame());
             return String.format("Chess game %s is done being observed.\n", params[0]);
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");

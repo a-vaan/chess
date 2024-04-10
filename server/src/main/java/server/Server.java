@@ -10,6 +10,8 @@ import dataAccess.DAOInterfaces.UserDAO;
 //import dataAccess.MemoryDAOs.UserDAOMemory;
 import model.request.*;
 import model.result.ErrorMessage;
+import server.websocket.WebSocketHandler;
+import server.websocket.WebSocketSessions;
 import service.DeleteService;
 import service.GameService;
 import service.UserService;
@@ -31,10 +33,13 @@ public class Server {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
+        WebSocketHandler webSocketHandler = new WebSocketHandler(new WebSocketSessions());
 
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", webSocketHandler);
 
         Spark.post("/user", this::registerHandler);
         Spark.post("/session", this::loginHandler);
