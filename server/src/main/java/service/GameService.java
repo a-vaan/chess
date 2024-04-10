@@ -160,19 +160,33 @@ public class GameService {
         GameData gameData = gameDAO.getGame(moveData.getGameID());
 
         ChessGame currentGame = gameData.game();
+        if((currentGame.getTeamTurn() == ChessGame.TeamColor.WHITE
+                && !Objects.equals(gameData.whiteUsername(), authData.username())) ||
+                (currentGame.getTeamTurn() == ChessGame.TeamColor.BLACK
+                && !Objects.equals(gameData.blackUsername(), authData.username()))) {
+            return "Error: not current player's turn";
+        }
         try {
             currentGame.makeMove(moveData.getMove());
-            if(currentGame.getTeamTurn() == ChessGame.TeamColor.BLACK) {
-                currentGame.setTeamTurn(ChessGame.TeamColor.WHITE);
-            } else {
-                currentGame.setTeamTurn(ChessGame.TeamColor.BLACK);
-            }
             GameData updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(),
                     gameData.blackUsername(), gameData.gameName(), currentGame);
             gameDAO.updateGame(updatedGameData);
-            return authData.username();
+            return authData.username() + "," + checkIfInCheck(gameData, currentGame);
         } catch (InvalidMoveException e) {
             return "Error: invalid move";
         }
+    }
+
+    private String checkIfInCheck(GameData gameData, ChessGame currentGame) {
+        if(currentGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            return "checkmate," + gameData.whiteUsername();
+        } else if(currentGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            return "checkmate," + gameData.blackUsername();
+        } else if(currentGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+            return "check," + gameData.whiteUsername();
+        } else if(currentGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+            return "check," + gameData.blackUsername();
+        }
+        return "null";
     }
 }

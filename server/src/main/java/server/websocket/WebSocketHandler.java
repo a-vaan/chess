@@ -1,13 +1,8 @@
 package server.websocket;
 
 import chess.ChessGame;
-import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataAccess.DAOInterfaces.AuthDAO;
-import dataAccess.DAOInterfaces.GameDAO;
-import dataAccess.DAOInterfaces.UserDAO;
 import dataAccess.DataAccessException;
-import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import service.GameService;
@@ -87,6 +82,12 @@ public class WebSocketHandler {
         }
         sendMessage(new LoadGame(moveData.getGameID()), session);
         broadcastMessage(moveData.getGameID(), new LoadGame(moveData.getGameID()), moveData.getAuthString());
+        String[] responseArray = response.split(",");
+        if(Objects.equals(responseArray[1], "checkmate")) {
+            broadcastMessage(moveData.getGameID(), new Notification(String.format("%s is in checkmate! Good game!", responseArray[2])), "null");
+        } else if(Objects.equals(responseArray[1], "check")) {
+            broadcastMessage(moveData.getGameID(), new Notification(String.format("%s is in check!", responseArray[2])), "null");
+        }
         var message = String.format("%s moved the piece at %s to %s", response,
                 moveData.getMove().getStartPosition().toString(), moveData.getMove().getEndPosition().toString());
         var notification = new Notification(message);

@@ -11,6 +11,7 @@ import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.Resign;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -76,6 +77,15 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
     public void makeMove(String authToken, Integer gameID, ChessMove move) throws ResponseException {
         try {
             var command = new MakeMove(authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void resignGame(String authToken, Integer gameID) throws ResponseException {
+        try {
+            var command = new Resign(authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

@@ -126,6 +126,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if(isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)) {
+            throw new InvalidMoveException("Move not valid");
+        }
         if (pieces.getPiece(move.getStartPosition()).getTeamColor() != currentTeamTurn) {
             throw new InvalidMoveException("Move not valid");
         }

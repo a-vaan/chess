@@ -8,6 +8,7 @@ import model.result.ListGamesResult;
 import server.ResponseException;
 import server.ServerFacade;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.userCommands.Resign;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class GameplayClient implements GameHandler {
                 case "redraw" -> redraw();
                 case "move" -> makeMove(params);
 //                case "highlight" -> listGames();
-//                case "resign" -> observeGame(params);
+                case "resign" -> resignGame();
                 case "leave" -> "leave";
                 default -> help();
             };
@@ -84,6 +85,11 @@ public class GameplayClient implements GameHandler {
             return "";
         }
         throw new ResponseException(400, "Expected: ROW,COLUMN(starting position) ROW,COLUMN(ending position)");
+    }
+
+    public String resignGame() throws ResponseException {
+        ws.resignGame(authToken, gameData.gameID());
+        return "";
     }
 
     private String draw() {
@@ -189,7 +195,7 @@ public class GameplayClient implements GameHandler {
     public String help() {
         return """
                     - redraw
-                    - move
+                    - move ROW,COLUMN(starting position) ROW,COLUMN(ending position)
                     - highlight
                     - resign
                     - leave
