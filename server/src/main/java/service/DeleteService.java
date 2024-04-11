@@ -24,6 +24,7 @@ public class DeleteService {
         userDAO.deleteAllUsers();
         authDAO.deleteAllAuths();
         gameDAO.deleteAllGames();
+
     }
 
 }

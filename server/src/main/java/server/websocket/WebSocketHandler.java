@@ -37,6 +37,7 @@ public class WebSocketHandler {
             case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMove.class), session);
             case RESIGN -> resignGame(new Gson().fromJson(message, Resign.class), session);
+            case LEAVE -> leaveGame(new Gson().fromJson(message, Leave.class), session);
         }
     }
 
@@ -90,7 +91,7 @@ public class WebSocketHandler {
         } else if(Objects.equals(responseArray[1], "check")) {
             broadcastMessage(moveData.getGameID(), new Notification(String.format("%s is in check!", responseArray[2])), "null");
         }
-        var message = String.format("%s moved the piece at %s to %s", response,
+        var message = String.format("%s moved the piece at %s to %s", responseArray[0],
                 moveData.getMove().getStartPosition().toString(), moveData.getMove().getEndPosition().toString());
         var notification = new Notification(message);
         broadcastMessage(moveData.getGameID(), notification, moveData.getAuthString());
@@ -107,20 +108,36 @@ public class WebSocketHandler {
             return;
         }
         sessions.addGameToResigned(resignData.getGameID());
-        var message = String.format("%s joined as an observer", response);
+        var message = String.format("%s has resigned", response);
         var notification = new Notification(message);
         broadcastMessage(resignData.getGameID(), notification, null);
     }
 
+    private void leaveGame(Leave leaveData, Session session) throws DataAccessException, IOException {
+        String response = gameService.leave(leaveData);
+        sessions.removeSessionFromGame(leaveData.getGameID(), leaveData.getAuthString(), session);
+        var message = String.format("%s has left the game", response);
+        var notification = new Notification(message);
+        broadcastMessage(leaveData.getGameID(), notification, leaveData.getAuthString());
+    }
+
+    public void deleteResignedIDs () {
+        sessions.deleteAllResignedIDs();
+    }
+
     private void sendMessage(ServerMessage message, Session session) throws IOException {
-        session.getRemote().sendString(new Gson().toJson(message));
+        if (session.isOpen()) {
+            session.getRemote().sendString(new Gson().toJson(message));
+        }
     }
 
     private void broadcastMessage(Integer gameID, ServerMessage message, String exceptThisAuthToken) throws IOException {
         ConcurrentHashMap<String, Session> gameSessions = sessions.getSessionsForGame(gameID);
         for(Map.Entry<String, Session> authMapBreak : gameSessions.entrySet()) {
             if(!(Objects.equals(authMapBreak.getKey(), exceptThisAuthToken))) {
-                authMapBreak.getValue().getRemote().sendString(new Gson().toJson(message));
+                if(authMapBreak.getValue().isOpen()) {
+                    authMapBreak.getValue().getRemote().sendString(new Gson().toJson(message));
+                }
             }
         }
     }

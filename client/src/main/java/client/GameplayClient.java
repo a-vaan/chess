@@ -8,7 +8,6 @@ import model.result.ListGamesResult;
 import server.ResponseException;
 import server.ServerFacade;
 import webSocketMessages.serverMessages.LoadGame;
-import webSocketMessages.userCommands.Resign;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,6 +89,10 @@ public class GameplayClient implements GameHandler {
     public String resignGame() throws ResponseException {
         ws.resignGame(authToken, gameData.gameID());
         return "";
+    }
+
+    public void leave() throws ResponseException {
+        ws.leaveGame(authToken, gameData.gameID());
     }
 
     private String draw() {

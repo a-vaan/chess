@@ -30,7 +30,12 @@ public class GameplayRepl {
                 System.out.print(msg);
             }
         }
-        System.out.println();
+        try {
+            client.leave();
+        } catch (Throwable e) {
+            var msg = e.toString();
+            System.out.print(msg);
+        }
     }
 
     private void printPrompt() {

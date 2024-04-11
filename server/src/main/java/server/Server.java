@@ -24,6 +24,7 @@ public class Server {
     private UserDAO userDAO;
     private AuthDAO authDAO;
     private GameDAO gameDAO;
+    private WebSocketHandler webSocketHandler;
 
     public int run(int desiredPort) {
         try {
@@ -33,7 +34,7 @@ public class Server {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-        WebSocketHandler webSocketHandler = new WebSocketHandler(new WebSocketSessions(), new GameService(gameDAO, authDAO));
+        webSocketHandler = new WebSocketHandler(new WebSocketSessions(), new GameService(gameDAO, authDAO));
 
         Spark.port(desiredPort);
 
@@ -254,6 +255,7 @@ public class Server {
         // try to delete all the items in all the databases, and if it fails catch the error and set to the correct HTTP code.
         try {
             deleteService.deleteAll();
+            webSocketHandler.deleteResignedIDs();
         } catch (Exception e) {
             response.status(500);
             return new Gson().toJson(new ErrorMessage(e.toString()));

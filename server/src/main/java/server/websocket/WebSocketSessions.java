@@ -1,12 +1,8 @@
 package server.websocket;
 
-import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketSessions {
@@ -34,17 +30,6 @@ public class WebSocketSessions {
         authMap.remove(authToken, session);
     }
 
-    public void removeSession(Session session) {
-        for(Map.Entry<Integer, ConcurrentHashMap<String, Session>> sessionMapBreak : sessionMap.entrySet()) {
-            for(Map.Entry<String, Session> authMapBreak : sessionMapBreak.getValue().entrySet()) {
-                if(authMapBreak.getValue() == session) {
-                    ConcurrentHashMap<String, Session> authMap = sessionMap.get(sessionMapBreak.getKey());
-                    authMap.remove(authMapBreak.getKey(), authMapBreak.getValue());
-                }
-            }
-        }
-    }
-
     public boolean checkIfResigned(Integer gameID) {
         return resignedGames.contains(gameID);
     }
@@ -52,4 +37,9 @@ public class WebSocketSessions {
     public ConcurrentHashMap<String, Session> getSessionsForGame(Integer gameID) {
         return sessionMap.get(gameID);
     }
+
+    public void deleteAllResignedIDs () {
+        resignedGames.clear();
+    }
+
 }
