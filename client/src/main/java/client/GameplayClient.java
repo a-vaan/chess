@@ -70,7 +70,7 @@ public class GameplayClient implements GameHandler {
                 return "\n" + draw();
             }
         }
-        throw new ResponseException(404, "Game not found");
+        throw new ResponseException("Game not found");
     }
 
     public String makeMove(String... params) throws ResponseException {
@@ -85,7 +85,7 @@ public class GameplayClient implements GameHandler {
             ws.makeMove(authToken, gameData.gameID(), chessMove);
             return "";
         }
-        throw new ResponseException(400, "Expected: ROW,COLUMN(starting position) ROW,COLUMN(ending position)");
+        throw new ResponseException("Expected: ROW,COLUMN(starting position) ROW,COLUMN(ending position)");
     }
 
     private String highlightMoves(String[] params) throws ResponseException {
@@ -101,7 +101,7 @@ public class GameplayClient implements GameHandler {
                 return displayWhiteHighlightedGame(validMoves, piecePosition);
             }
         }
-        throw new ResponseException(400, "Expected: highlight ROW,COLUMN(piece position)");
+        throw new ResponseException("Expected: highlight ROW,COLUMN(piece position)");
     }
 
     public String resignGame() throws ResponseException {

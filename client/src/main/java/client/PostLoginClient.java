@@ -8,7 +8,7 @@ import server.ServerFacade;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class postLoginClient {
+public class PostLoginClient {
 
     private final ServerFacade server;
     private final String serverURL;
@@ -16,7 +16,7 @@ public class postLoginClient {
     private final HashMap<Integer, GameData> gameList;
     private final String username;
 
-    public postLoginClient(String serverUrl, String auth, String user) {
+    public PostLoginClient(String serverUrl, String auth, String user) {
         server = new ServerFacade(serverUrl);
         serverURL = serverUrl;
         authToken = auth;
@@ -47,7 +47,7 @@ public class postLoginClient {
             server.createGame(params[0], authToken);
             return String.format("Chess game %s created.", params[0]);
         }
-        throw new ResponseException(400, "Expected: <GAME NAME>");
+        throw new ResponseException("Expected: <GAME NAME>");
     }
 
     public String listGames() throws ResponseException {
@@ -77,7 +77,7 @@ public class postLoginClient {
             }
             return String.format("Chess game %s exited.\n", params[0]);
         }
-        throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
+        throw new ResponseException("Expected: <ID> [WHITE | BLACK]");
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -93,7 +93,7 @@ public class postLoginClient {
             }
             return String.format("Chess game %s is done being observed.\n", params[0]);
         }
-        throw new ResponseException(400, "Expected: <ID> [WHITE | BLACK]");
+        throw new ResponseException("Expected: <ID> [WHITE | BLACK]");
     }
 
     public void logout() throws ResponseException {

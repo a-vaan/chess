@@ -7,12 +7,12 @@ import server.ServerFacade;
 
 import java.util.Arrays;
 
-public class preLoginClient {
+public class PreLoginClient {
 
     private final ServerFacade server;
     private final String serverURL;
 
-    public preLoginClient(String serverUrl) {
+    public PreLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
         serverURL = serverUrl;
     }
@@ -36,23 +36,23 @@ public class preLoginClient {
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
             RegisterResult registerData = server.register(params[0], params[1], params[2]);
-            new postLoginRepl(serverURL, registerData.authToken(), params[0]).run(params[0]);
+            new PostLoginRepl(serverURL, registerData.authToken(), params[0]).run(params[0]);
             return "You have been logged out.";
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException("Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             LoginResult loginData = server.login(params[0], params[1]);
             try {
-                new postLoginRepl(serverURL, loginData.authToken(), params[0]).run(params[0]);
+                new PostLoginRepl(serverURL, loginData.authToken(), params[0]).run(params[0]);
             } catch (Exception e) {
                 return "Player does not exist. Please try again.\n";
             }
             return "You have been logged out.\n";
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException("Expected: <USERNAME> <PASSWORD>");
     }
 
     public String help() {

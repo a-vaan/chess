@@ -37,7 +37,7 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, RegisterResult.class);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -59,7 +59,7 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, LoginResult.class);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -75,7 +75,7 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -97,7 +97,7 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, CreateGameResult.class);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -119,7 +119,7 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, ListGamesResult.class);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
@@ -151,14 +151,14 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
         } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status);
+            throw new ResponseException("failure: " + status);
         }
     }
 

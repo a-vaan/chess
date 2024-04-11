@@ -4,12 +4,12 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class preLoginRepl {
+public class PreLoginRepl {
 
-    private final preLoginClient client;
+    private final PreLoginClient client;
 
-    public preLoginRepl(String serverUrl) {
-        client = new preLoginClient(serverUrl);
+    public PreLoginRepl(String serverUrl) {
+        client = new PreLoginClient(serverUrl);
     }
 
     public void run() {

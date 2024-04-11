@@ -4,12 +4,12 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class postLoginRepl {
+public class PostLoginRepl {
 
-    private final postLoginClient client;
+    private final PostLoginClient client;
 
-    public postLoginRepl(String serverUrl, String authToken, String user) {
-        client = new postLoginClient(serverUrl, authToken, user);
+    public PostLoginRepl(String serverUrl, String authToken, String user) {
+        client = new PostLoginClient(serverUrl, authToken, user);
     }
 
     public void run(String username) {

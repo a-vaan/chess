@@ -49,52 +49,35 @@ public class WebSocketFacade extends Endpoint implements MessageHandler.Whole<St
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
     public void joinPlayer(String authToken, Integer gameID, ChessGame.TeamColor playerColor, String playerName) throws ResponseException {
-        try {
-            var command = new JoinPlayer(authToken, gameID, playerColor, playerName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+        sendToServer(new JoinPlayer(authToken, gameID, playerColor, playerName));
     }
 
     public void joinObserver(String authToken, Integer gameID) throws ResponseException {
-        try {
-            var command = new JoinObserver(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+        sendToServer(new JoinObserver(authToken, gameID));
     }
 
     public void makeMove(String authToken, Integer gameID, ChessMove move) throws ResponseException {
-        try {
-            var command = new MakeMove(authToken, gameID, move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+        sendToServer(new MakeMove(authToken, gameID, move));
     }
 
     public void resignGame(String authToken, Integer gameID) throws ResponseException {
-        try {
-            var command = new Resign(authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+        sendToServer(new Resign(authToken, gameID));
     }
 
     public void leaveGame(String authToken, Integer gameID) throws ResponseException {
+        sendToServer(new Leave(authToken, gameID));
+    }
+
+    private void sendToServer(UserGameCommand command) throws ResponseException {
         try {
-            var command = new Leave(authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
+            throw new ResponseException(ex.getMessage());
         }
     }
 
