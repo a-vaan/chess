@@ -10,6 +10,7 @@ import server.ServerFacade;
 import webSocketMessages.serverMessages.LoadGame;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ public class GameplayClient implements GameHandler {
     private GameData gameData;
     private final String authToken;
     private final String username;
+    private boolean isBlack = true;
     private final HashMap<String, Integer> lettersToNumbers = new HashMap<>();
     private final WebSocketFacade ws;
 
@@ -49,7 +51,7 @@ public class GameplayClient implements GameHandler {
             return switch (cmd) {
                 case "redraw" -> redraw();
                 case "move" -> makeMove(params);
-//                case "highlight" -> listGames();
+                case "highlight" -> highlightMoves(params);
                 case "resign" -> resignGame();
                 case "leave" -> "leave";
                 default -> help();
@@ -86,6 +88,22 @@ public class GameplayClient implements GameHandler {
         throw new ResponseException(400, "Expected: ROW,COLUMN(starting position) ROW,COLUMN(ending position)");
     }
 
+    private String highlightMoves(String[] params) throws ResponseException {
+        if(params.length == 1) {
+            ChessGame chessGame = gameData.game();
+            String[] positionArray = params[0].split(",");
+            ChessPosition piecePosition =
+                    new ChessPosition(Integer.parseInt(positionArray[0]), lettersToNumbers.get(positionArray[1]));
+            Collection<ChessMove> validMoves = chessGame.validMoves(piecePosition);
+            if(Objects.equals(gameData.blackUsername(), username)) {
+                return displayBlackHighlightedGame(validMoves, piecePosition);
+            } else {
+                return displayWhiteHighlightedGame(validMoves, piecePosition);
+            }
+        }
+        throw new ResponseException(400, "Expected: highlight ROW,COLUMN(piece position)");
+    }
+
     public String resignGame() throws ResponseException {
         ws.resignGame(authToken, gameData.gameID());
         return "";
@@ -106,19 +124,35 @@ public class GameplayClient implements GameHandler {
         ChessGame game = gameData.game();
         ChessBoard board = game.getBoard();
         String returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n";
-        boolean isBlack = true;
+        isBlack = true;
 
         for(int i = 1; i <= 8; i++) {
             String line = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i);
             for(int j = 1; j <= 8; j++) {
                 line += alternateColors(isBlack);
-                isBlack = !isBlack;
-                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if(piece == null) {
-                    line += "   ";
-                } else {
-                    line += String.format(" %s ", returnCorrectPiece(piece));
-                }
+                line = displayLoop(line, board, i, j);
+            }
+            isBlack = !isBlack;
+            line += SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i) + RESET_BG_COLOR + "\n";
+            returnString = line + returnString;
+        }
+        returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " +
+                RESET_BG_COLOR + "\n" + returnString;
+        return returnString;
+    }
+
+    public String displayWhiteHighlightedGame(Collection<ChessMove> validMoves, ChessPosition currentPosition) {
+        ChessGame game = gameData.game();
+        ChessBoard board = game.getBoard();
+        String returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR + "\n";
+        isBlack = true;
+
+        for(int i = 1; i <= 8; i++) {
+            String line = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i);
+            for(int j = 1; j <= 8; j++) {
+                line += alternateHighlightedColors(isBlack, validMoves,
+                        new ChessMove(currentPosition, new ChessPosition(i, j), null));
+                line = displayLoop(line, board, i, j);
             }
             isBlack = !isBlack;
             line += SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i) + RESET_BG_COLOR + "\n";
@@ -133,19 +167,13 @@ public class GameplayClient implements GameHandler {
         ChessGame game = gameData.game();
         ChessBoard board = game.getBoard();
         String returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n";
-        boolean isBlack = true;
+        isBlack = true;
 
         for(int i = 8; i >= 1; i--) {
             String line = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i);
             for(int j = 8; j >= 1; j--) {
                 line += alternateColors(isBlack);
-                isBlack = !isBlack;
-                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if(piece == null) {
-                    line += "   ";
-                } else {
-                    line += String.format(" %s ", returnCorrectPiece(piece));
-                }
+                line = displayLoop(line, board, i, j);
             }
             isBlack = !isBlack;
             line += SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i) + RESET_BG_COLOR + "\n";
@@ -154,6 +182,39 @@ public class GameplayClient implements GameHandler {
         returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    " +
                 RESET_BG_COLOR + "\n" + returnString;
         return returnString;
+    }
+
+    public String displayBlackHighlightedGame(Collection<ChessMove> validMoves, ChessPosition currentPosition) {
+        ChessGame game = gameData.game();
+        ChessBoard board = game.getBoard();
+        String returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR + "\n";
+        isBlack = true;
+
+        for(int i = 8; i >= 1; i--) {
+            String line = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i);
+            for(int j = 8; j >= 1; j--) {
+                line += alternateHighlightedColors(isBlack, validMoves,
+                        new ChessMove(currentPosition, new ChessPosition(i, j), null));
+                line = displayLoop(line, board, i, j);
+            }
+            isBlack = !isBlack;
+            line += SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + String.format(" %s ", i) + RESET_BG_COLOR + "\n";
+            returnString = line + returnString;
+        }
+        returnString = SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    " +
+                RESET_BG_COLOR + "\n" + returnString;
+        return returnString;
+    }
+
+    private String displayLoop(String line, ChessBoard board, int i, int j) {
+        isBlack = !isBlack;
+        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+        if(piece == null) {
+            line += "   ";
+        } else {
+            line += String.format(" %s ", returnCorrectPiece(piece));
+        }
+        return line;
     }
 
     private String returnCorrectPiece (ChessPiece piece) {
@@ -195,11 +256,24 @@ public class GameplayClient implements GameHandler {
         }
     }
 
+    private String alternateHighlightedColors (boolean isBlack, Collection<ChessMove> validMoves, ChessMove currentPosition) {
+        if(isBlack && validMoves.contains(currentPosition)) {
+            return SET_BG_COLOR_DARK_GREEN;
+        }
+        if(!isBlack && validMoves.contains(currentPosition)) {
+            return SET_BG_COLOR_GREEN;
+        }
+        if(isBlack) {
+            return SET_BG_COLOR_BLACK;
+        }
+        return SET_BG_COLOR_WHITE;
+    }
+
     public String help() {
         return """
                     - redraw
                     - move ROW,COLUMN(starting position) ROW,COLUMN(ending position)
-                    - highlight
+                    - highlight ROW,COLUMN(piece position)
                     - resign
                     - leave
                     """;
