@@ -10,10 +10,7 @@ import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserver;
-import webSocketMessages.userCommands.JoinPlayer;
-import webSocketMessages.userCommands.MakeMove;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -39,6 +36,7 @@ public class WebSocketHandler {
             case JOIN_PLAYER -> joinPlayer(new Gson().fromJson(message, JoinPlayer.class), session);
             case JOIN_OBSERVER -> joinObserver(new Gson().fromJson(message, JoinObserver.class), session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMove.class), session);
+            case RESIGN -> resignGame(new Gson().fromJson(message, Resign.class), session);
         }
     }
 
@@ -75,6 +73,10 @@ public class WebSocketHandler {
     }
 
     private void makeMove(MakeMove moveData, Session session) throws IOException, DataAccessException{
+        if(sessions.checkIfResigned(moveData.getGameID())) {
+            sendMessage(new Error("A player has already resigned"), session);
+            return;
+        }
         String response = gameService.makeMove(moveData);
         if (response.contains("Error")) {
             sendMessage(new Error(response), session);
@@ -92,6 +94,22 @@ public class WebSocketHandler {
                 moveData.getMove().getStartPosition().toString(), moveData.getMove().getEndPosition().toString());
         var notification = new Notification(message);
         broadcastMessage(moveData.getGameID(), notification, moveData.getAuthString());
+    }
+
+    private void resignGame(Resign resignData, Session session) throws DataAccessException, IOException {
+        String response = gameService.resign(resignData);
+        if(response.contains("Error")) {
+            sendMessage(new Error(response), session);
+            return;
+        }
+        if(sessions.checkIfResigned(resignData.getGameID())) {
+            sendMessage(new Error("Another player has already resigned"), session);
+            return;
+        }
+        sessions.addGameToResigned(resignData.getGameID());
+        var message = String.format("%s joined as an observer", response);
+        var notification = new Notification(message);
+        broadcastMessage(resignData.getGameID(), notification, null);
     }
 
     private void sendMessage(ServerMessage message, Session session) throws IOException {

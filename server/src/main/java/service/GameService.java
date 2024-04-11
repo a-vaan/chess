@@ -15,6 +15,7 @@ import model.result.ListGamesResult;
 import webSocketMessages.userCommands.JoinObserver;
 import webSocketMessages.userCommands.JoinPlayer;
 import webSocketMessages.userCommands.MakeMove;
+import webSocketMessages.userCommands.Resign;
 
 import java.util.Objects;
 
@@ -188,5 +189,16 @@ public class GameService {
             return "check," + gameData.blackUsername();
         }
         return "null";
+    }
+
+    public String resign(Resign resignData) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(resignData.getAuthString());
+        GameData gameData = gameDAO.getGame(resignData.getGameID());
+
+        if(!Objects.equals(authData.username(), gameData.whiteUsername())
+                || !Objects.equals(authData.username(), gameData.blackUsername())) {
+            return "Error: observers not allowed to resign";
+        }
+        return authData.username();
     }
 }
